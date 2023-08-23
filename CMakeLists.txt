@@ -2,37 +2,41 @@ cmake_minimum_required(VERSION 3.23)
 project(ProtosCloudServer)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # options
 option(ENABLE_TESTS "Set to ON to enable building of tests" OFF)
 option(BUILD_SHARED_LIBS "Build ProtosCloudServer shared/static library." OFF)
 option(BUILD_DOCUMENTATION "Build doxygen API documentation." OFF)
 
-# sources
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-#    add_definitions(-D_WIN32_WINNT=0x0601)
-#    add_definitions(-DWIN32_LEAN_AND_MEAN)
-#    add_definitions(-DNOMINMAX)
+    #    add_definitions(-D_WIN32_WINNT=0x0601)
+    #    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    #    add_definitions(-DNOMINMAX)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif()
 
 include_directories(include)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    src
+        src/*.*
+        include/*.*
     )
 
 set(PROJECT_SOURCES
     ${SOURCES}
-        src/net/BoostHttpOnlySslClient.cpp)
+    main.cpp)
 
 set(LIB_LIST
-    ${OPENSSL_LIBRARIES}
-    ${Boost_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ws2_32
+        wsock32
+    )
+
+add_compile_options(
+
     )
 
 ## openssl
@@ -58,9 +62,13 @@ else()
 ENDIF()
 
 # building project
-add_library(${PROJECT_NAME} ${PROJECT_SOURCES})
-target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} ${LIB_LIST})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC
+        include
+        )
+target_link_libraries(${PROJECT_NAME}
+        ${LIB_LIST}
+        )
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
