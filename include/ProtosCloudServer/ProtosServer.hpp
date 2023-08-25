@@ -8,8 +8,8 @@
 #include <utility>
 
 #include "export.h"
-#include "ProtosCloudServer/net/AsioServer.hpp"
-#include "ProtosCloudServer/net/HttpServer.hpp"
+#include "ProtosCloudServer/net/asioServer.hpp"
+#include "ProtosCloudServer/net/httpServer.hpp"
 #include "exception"
 
 namespace ProtosCloudServer{
@@ -34,11 +34,13 @@ public:
         return {};
     }
 
-
-    void start(){
+    void Start(){
         server_.StartServer();
     }
 
+    void Stop(){
+        server_.StartServer();
+    }
 private:
     HttpServer server_;
 };

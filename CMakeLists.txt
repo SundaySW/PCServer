@@ -26,7 +26,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 
 set(PROJECT_SOURCES
     ${SOURCES}
-    main.cpp)
+    main.cpp include/ProtosCloudServer/logging/level.hpp include/ProtosCloudServer/logging/base_logger.hpp include/ProtosCloudServer/logging/log.hpp src/logging/log.cpp src/logging/base_logger.cpp)
 
 set(LIB_LIST
         ${OPENSSL_LIBRARIES}

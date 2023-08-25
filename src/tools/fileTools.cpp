@@ -1,4 +1,4 @@
-#include "ProtosCloudServer/tools/FileTools.h"
+#include "ProtosCloudServer/tools/fileTools.h"
 
 #include <fstream>
 #include <sstream>
@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace FileTools {
+namespace fileTools {
 
 string read(const string& filePath) {
     ifstream in(filePath, ios::in | ios::binary);

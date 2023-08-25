@@ -8,7 +8,7 @@
 /**
  * @ingroup tools
  */
-namespace FileTools {
+namespace fileTools {
 
 /**
  * Reads whole file to string.

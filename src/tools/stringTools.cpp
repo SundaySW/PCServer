@@ -1,4 +1,4 @@
-#include "ProtosCloudServer/tools/StringTools.h"
+#include "ProtosCloudServer/tools/stringTools.h"
 
 #include <iomanip>
 #include <cstdio>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace StringTools {
+namespace stringTools {
 
 bool startsWith(const string& str1, const string& str2) {
     if (str1.length() < str2.length()) {

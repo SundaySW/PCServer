@@ -11,7 +11,7 @@
 /**
  * @ingroup tools
  */
-namespace StringTools {
+namespace stringTools {
 
 /**
  * Checks if first string is starting with second string

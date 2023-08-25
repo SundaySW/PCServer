@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "ProtosCloudServer/types/RuntimeError.hpp"
-#include "Session.hpp"
+#include "session.hpp"
 
 namespace ProtosCloudServer {
 /**

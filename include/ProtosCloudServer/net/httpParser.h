@@ -1,8 +1,8 @@
 #ifndef PROTOSCLOUDSERVER_HTTPPARSER_H
 #define PROTOSCLOUDSERVER_HTTPPARSER_H
 
-#include "Url.h"
-#include "HttpReqArg.h"
+#include "url.h"
+#include "httpReqArg.h"
 
 #include <string>
 #include <unordered_map>

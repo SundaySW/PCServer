@@ -1,5 +1,5 @@
-#include "ProtosCloudServer/net/HttpParser.h"
-#include "ProtosCloudServer/tools/StringTools.h"
+#include "ProtosCloudServer/net/httpParser.h"
+#include "ProtosCloudServer/tools/stringTools.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -85,7 +85,7 @@ string HttpParser::generateMultipartBoundary(const vector<HttpReqArg>& args) con
     for (const HttpReqArg& item : args) {
         if (item.isFile) {
             while (result.empty() || item.value.find(result) != string::npos) {
-                result += StringTools::generateRandomString(4);
+                result += stringTools::generateRandomString(4);
             }
         }
     }
@@ -102,9 +102,9 @@ string HttpParser::generateWwwFormUrlencoded(const vector<HttpReqArg>& args) con
         } else {
             result += '&';
         }
-        result += StringTools::urlEncode(item.name);
+        result += stringTools::urlEncode(item.name);
         result += '=';
-        result += StringTools::urlEncode(item.value);
+        result += stringTools::urlEncode(item.value);
     }
 
     return result;
