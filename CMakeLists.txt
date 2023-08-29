@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 project(ProtosCloudServer)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(ENABLE_TESTS "Set to ON to enable building of tests" OFF)
 option(BUILD_SHARED_LIBS "Build ProtosCloudServer shared/static library." OFF)
 option(BUILD_DOCUMENTATION "Build doxygen API documentation." OFF)
+
+set(PCS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(PCS_THIRD_PARTY_DIRS ${PCS_ROOT_DIR}/third_party CACHE INTERNAL "")
 
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -26,7 +29,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 
 set(PROJECT_SOURCES
     ${SOURCES}
-    main.cpp include/ProtosCloudServer/logging/level.hpp include/ProtosCloudServer/logging/base_logger.hpp include/ProtosCloudServer/logging/log.hpp src/logging/log.cpp src/logging/base_logger.cpp)
+    main.cpp
+   )
 
 set(LIB_LIST
         ${OPENSSL_LIBRARIES}
@@ -60,11 +64,16 @@ IF (Boost_FOUND)
 else()
     message("++ BOOST:: Boost NOT found, current boost root dir: ${BOOST_ROOT}")
 ENDIF()
+## fmt
+find_package(fmt REQUIRED)
+## yaml
+find_package(yaml-cpp REQUIRED)
 
 # building project
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
+        ${PCS_THIRD_PARTY_DIRS}/moodycamel/include
         )
 target_link_libraries(${PROJECT_NAME}
         ${LIB_LIST}

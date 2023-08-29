@@ -1,15 +1,11 @@
-//
-// Created by user on 17.08.2023.
-//
-
 #ifndef PROTOSCLOUDSERVER_PROTOSSERVER_HPP
 #define PROTOSCLOUDSERVER_PROTOSSERVER_HPP
 
 #include <utility>
 
 #include "export.h"
-#include "ProtosCloudServer/net/asioServer.hpp"
-#include "ProtosCloudServer/net/httpServer.hpp"
+#include "ProtosCloudServer/net/asio_server.hpp"
+#include "ProtosCloudServer/net/http_server.hpp"
 #include "exception"
 
 namespace ProtosCloudServer{
@@ -20,17 +16,19 @@ namespace ProtosCloudServer{
  * @ingroup general
  */
 template<typename ServerBaseProtocol>
-class PROTOSCLOUDSERVER_API ProtosServer {
+class PCS_API ProtosServer {
 public:
-    using EventHandler = std::function<std::string (const std::string&, const std::unordered_map<std::string, std::string>&)>;
-    using HttpServer = HttpServer<ServerBaseProtocol, EventHandler>;
+    using EventHandler = std::function<std::string(const std::string&,
+                                                   const std::unordered_map<std::string, std::string>&)>;
+    using Server = HttpServer<ServerBaseProtocol, EventHandler>;
 
     explicit ProtosServer(ServerBaseProtocol&& ver, std::size_t port)
         :server_(typename ServerBaseProtocol::endpoint(ver, port), &handlerFunc)
     {
     }
 
-    static std::string handlerFunc(const std::string& dataString, const std::unordered_map<std::string, std::string>& headers){
+    static std::string handlerFunc(const std::string& dataString,
+                                   const std::unordered_map<std::string, std::string>& headers){
         return {};
     }
 
@@ -42,7 +40,7 @@ public:
         server_.StartServer();
     }
 private:
-    HttpServer server_;
+    Server server_;
 };
 
 }

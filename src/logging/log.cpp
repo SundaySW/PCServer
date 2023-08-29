@@ -1,26 +1,46 @@
+#include <atomic>
 #include "ProtosCloudServer/logging/log.hpp"
+#include "ProtosCloudServer/logging/impl/base_logger.hpp"
+#include "ProtosCloudServer/logging/null_logger.hpp"
+
 namespace ProtosCloudServer {
 
 namespace logging {
 
-    namespace {
-        auto &DefaultLoggerInternal() noexcept {
-            static std::atomic<ProtosCloudServer::logging::BasicLogger *> default_logger_ptr{};
-            return default_logger_ptr;
-        }
-    }// namespace
+namespace {
 
-    namespace impl {
-        void SetDefaultLoggerRef(LoggerRef logger) noexcept {
-            DefaultLoggerInternal() = &logger;
-        }
-    }// namespace impl
+auto& DefaultLoggerInternalRef() noexcept{
+    static std::atomic<impl::BaseLogger *> default_logger_ptr{&GetNullLogger()};
+    return default_logger_ptr;
+}
 
-    LoggerRef GetDefaultLogger() noexcept {
-        return *DefaultLoggerInternal().load();
-    }
+auto DefaultLoggerPtr() noexcept{
+    static LoggerPtr default_logger_holder{};
+    return default_logger_holder;
+}
 
-    void SetLoggerLevel(LoggerRef logger, Level level) { logger.SetLevel(level); }
+}// namespace
+
+namespace impl {
+
+void SetDefaultLogger(const LoggerPtr& logger) noexcept {
+    DefaultLoggerInternalRef() = logger.get();
+    DefaultLoggerPtr() = logger;
+}
+
+}// namespace impl
+
+LoggerRef GetDefaultLogger() noexcept {
+    return *DefaultLoggerInternalRef().load();
+}
+
+void SetLoggerLevel(LoggerRef logger, Level level) {
+    logger.SetLevel(level);
+}
+
+void LogFlush(){
+    GetDefaultLogger().Flush();
+}
 
 }
 }

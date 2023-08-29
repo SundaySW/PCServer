@@ -2,7 +2,7 @@
 // Created by user on 16.08.2023.
 //
 
-#include "ProtosCloudServer/net/session.hpp"
+#include "ProtosCloudServer/net/http_session.hpp"
 
 namespace io = boost::asio;
 using tcp = io::ip::tcp;
@@ -27,9 +27,11 @@ namespace ProtosCloudServer {
     }
 
     void Session::Post(const std::string &message){
-        outgoingQueue_.push(message);
-        if (!outgoingQueue_.empty())
-            AsyncWrite();
+        outgoingQueue_.enqueue(message);
+        std::string msg;
+        auto hasElem = outgoingQueue_.try_dequeue(msg);
+        if (hasElem)
+            AsyncWrite(msg);
     }
 
     void Session::AsyncRead() {
@@ -69,14 +71,14 @@ namespace ProtosCloudServer {
                 socket_,
                 stream_buf_ptr_,
                 boost::asio::transfer_at_least(1),
-                    [this, self = shared_from_this(), headers](auto &&error, auto &&bytes_transferred){
-                        if(error)
-                            on_error_(error);
-                            io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
-                            std::string dataAsString(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes_transferred);
-                            stream_buf_ptr_.consume(bytes_transferred);
-                            on_message_(headers, std::move(dataAsString));
-                        });
+                [this, self = shared_from_this(), headers](auto &&error, auto &&bytes_transferred){
+                    if(error)
+                        on_error_(error);
+                    io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
+                    std::string dataAsString(boost::asio::buffers_begin(bufs), boost::asio::buffers_begin(bufs) + bytes_transferred);
+                    stream_buf_ptr_.consume(bytes_transferred);
+                    on_message_(headers, std::move(dataAsString));
+                });
     }
 
     void Session::OnRead(error_code error, std::size_t bytes_transferred) {
@@ -93,10 +95,10 @@ namespace ProtosCloudServer {
         }
     }
 
-    void Session::AsyncWrite() {
+    void Session::AsyncWrite(std::string msg) {
         io::async_write(
                 socket_,
-                io::buffer(outgoingQueue_.front()),
+                io::buffer(msg),
                 [self = shared_from_this()](auto &&error, auto &&bytes_transferred){
                     self->OnWrite(
                             std::forward<decltype(error)>(error),
@@ -107,10 +109,11 @@ namespace ProtosCloudServer {
 
     void Session::OnWrite(error_code error, std::size_t bytes_transferred){
         if (!error) {
-            outgoingQueue_.pop();
-            if (!outgoingQueue_.empty())
-                AsyncWrite();
-        } else {
+            std::string msg;
+            auto hasElem = outgoingQueue_.try_dequeue(msg);
+            if (hasElem)
+                AsyncWrite(msg);
+        }else{
             socket_.close(error);
             on_error_(error);
         }

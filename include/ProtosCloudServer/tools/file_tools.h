@@ -1,5 +1,5 @@
-#ifndef PROTOSCLOUDSERVER_FILETOOLS_H
-#define PROTOSCLOUDSERVER_FILETOOLS_H
+#ifndef PROTOSCLOUDSERVER_FILE_TOOLS_H
+#define PROTOSCLOUDSERVER_FILE_TOOLS_H
 
 #include "export.h"
 
@@ -16,7 +16,7 @@ namespace fileTools {
  * @throws exception of type std::ifstream::failure if reading fails
  * @return string with file contents
  */
-PROTOSCLOUDSERVER_API
+PCS_API
 std::string read(const std::string& filePath);
 
 /**
@@ -24,9 +24,9 @@ std::string read(const std::string& filePath);
  * @param filePath Path to a file
  * @throws exception of type std::ifstream::failure if writing fails
 */
-PROTOSCLOUDSERVER_API
+PCS_API
 void write(const std::string& content, const std::string& filePath);
 
 }
 
-#endif //PROTOSCLOUDSERVER_FILETOOLS_H
+#endif //PROTOSCLOUDSERVER_FILE_TOOLS_H

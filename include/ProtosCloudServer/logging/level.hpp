@@ -22,7 +22,7 @@ namespace logging {
     };
     inline constexpr auto kLevelMax = static_cast<int>(Level::kNone);
 
-}//namespace logging
+} //namespace logging
+} //namespace ProtosCloudServer
 
-}//namespace ProtosCloudServer
 #endif //PROTOSCLOUDSERVER_LEVEL_HPP

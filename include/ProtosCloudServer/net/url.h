@@ -11,7 +11,7 @@ namespace ProtosCloudServer {
  *
  * @ingroup net
  */
-class PROTOSCLOUDSERVER_API Url {
+class PCS_API Url {
 
 public:
     explicit Url(const std::string& url);

@@ -1,5 +1,5 @@
-#include "ProtosCloudServer/net/httpParser.h"
-#include "ProtosCloudServer/tools/stringTools.h"
+#include "ProtosCloudServer/net/http_parser.h"
+#include "ProtosCloudServer/tools/string_tools.h"
 
 #include <boost/algorithm/string.hpp>
 

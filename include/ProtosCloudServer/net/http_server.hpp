@@ -2,26 +2,26 @@
 // Created by user on 17.08.2023.
 //
 
-#ifndef PROTOSCLOUDSERVER_HTTPSERVER_HPP
-#define PROTOSCLOUDSERVER_HTTPSERVER_HPP
+#ifndef PROTOSCLOUDSERVER_HTTP_SERVER_HPP
+#define PROTOSCLOUDSERVER_HTTP_SERVER_HPP
 
-#include "ProtosCloudServer/net/asioServer.hpp"
+#include "ProtosCloudServer/net/asio_server.hpp"
 
 namespace ProtosCloudServer {
 
-    namespace {
-        using handleFunc = std::function<void (std::shared_ptr<Session>)>;
-    }
+namespace {
+    using handleFunc = std::function<void (std::shared_ptr<Session>)>;
+}
 
 template<typename Protocol, typename EventHandler>
-class PROTOSCLOUDSERVER_API HttpServer : public AsioServer<Protocol, handleFunc> {
+class PCS_API HttpServer : public AsioServer<Protocol, handleFunc> {
 public:
-    using AsioServer = AsioServer<Protocol, handleFunc>;
+    using Server = AsioServer<Protocol, handleFunc>;
     HttpServer(
                 const typename boost::asio::basic_socket_acceptor<Protocol>::endpoint_type& endpoint,
                 EventHandler eventHandler
                 )
-                : AsioServer(endpoint,
+                : Server(endpoint,
                         [this](auto&& _1)
                             {return HandleNewConnection_(_1);}
                         ),
@@ -29,10 +29,10 @@ public:
                   event_handler_(eventHandler)
     {}
     void StartServer(){
-        AsioServer::Start();
+        Server::Start();
     }
     void StopServer(){
-        AsioServer::Start();
+        Server::Start();
     }
 private:
     std::string Handle_(const std::string& data, const std::unordered_map<std::string, std::string>& headers){
@@ -71,4 +71,4 @@ private:
 };
 }
 
-#endif //PROTOSCLOUDSERVER_HTTPSERVER_HPP
+#endif //PROTOSCLOUDSERVER_HTTP_SERVER_HPP

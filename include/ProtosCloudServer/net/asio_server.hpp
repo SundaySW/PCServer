@@ -1,5 +1,5 @@
-#ifndef PROTOSCLOUDSERVER_ASIOSERVER_HPP
-#define PROTOSCLOUDSERVER_ASIOSERVER_HPP
+#ifndef PROTOSCLOUDSERVER_ASIO_SERVER_HPP
+#define PROTOSCLOUDSERVER_ASIO_SERVER_HPP
 
 #include <optional>
 #include <iostream>
@@ -7,10 +7,11 @@
 #include <unordered_set>
 #include <utility>
 
-#include "ProtosCloudServer/types/RuntimeError.hpp"
-#include "session.hpp"
+#include "ProtosCloudServer/types/runtime_error.hpp"
+#include "http_session.hpp"
 
 namespace ProtosCloudServer {
+
 /**
  * @brief This class make core TCP ProtosServer using Boost Asio
  *
@@ -18,9 +19,10 @@ namespace ProtosCloudServer {
  */
 
 template<typename Protocol, typename EventHandler>
-class PROTOSCLOUDSERVER_API AsioServer{
+class PCS_API AsioServer{
 public:
-    AsioServer(const typename boost::asio::basic_socket_acceptor<Protocol>::endpoint_type& endpoint, EventHandler handler)
+    AsioServer(const typename boost::asio::basic_socket_acceptor<Protocol>::endpoint_type& endpoint,
+               EventHandler handler)
         :io_service_()
         ,acceptor_(io_service_, endpoint)
         ,socket_(io_service_)
@@ -55,4 +57,4 @@ private:
 };
 }
 
-#endif //PROTOSCLOUDSERVER_ASIOSERVER_HPP
+#endif //PROTOSCLOUDSERVER_ASIO_SERVER_HPP
