@@ -19,7 +19,7 @@ void LogFlush();
 
 /// @brief If lvl matches the verbosity then builds a stream and evaluates a
 /// message for the specified logger.
-#define LOG_TO(logger, lvl) LogDriver(logger, level).AsLvalue()
+#define LOG_TO(logger, lvl) LogDriver(logger, lvl).AsLvalue()
 
 /// @brief If lvl matches the verbosity then builds a stream and evaluates a
 /// message for the default logger.

@@ -45,7 +45,7 @@ protected:
     void AsyncAccept(){
         socket_.emplace(io_service_);
         acceptor_.async_accept(*socket_, [&](boost::system::error_code error){
-            handler_(std::make_shared<Session>(std::move(*socket_)));
+            handler_(std::make_shared<HttpSession>(std::move(*socket_)));
             AsyncAccept();
         });
     }

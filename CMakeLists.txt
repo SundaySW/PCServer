@@ -39,6 +39,20 @@ set(LIB_LIST
         wsock32
     )
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LIB_LIST
+            ${OPENSSL_LIBRARIES}
+            ${Boost_LIBRARIES}
+            ws2_32
+            wsock32
+            )
+else()
+    set(LIB_LIST
+            ${OPENSSL_LIBRARIES}
+            ${Boost_LIBRARIES}
+            )
+endif()
+
 add_compile_options(
 
     )
