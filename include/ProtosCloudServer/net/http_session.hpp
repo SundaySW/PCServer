@@ -10,6 +10,9 @@
 #include "ProtosCloudServer/net/http_parser.h"
 
 namespace ProtosCloudServer {
+
+namespace net{
+
 /**
  * @brief This class make default session for server client
  *
@@ -22,9 +25,11 @@ public:
     using error_handler = std::function<void(boost::system::error_code error)>;
 
     explicit HttpSession(boost::asio::ip::tcp::socket &&socket);
+    ~HttpSession();
     void Start(message_handler &&on_message, error_handler &&on_error);
     void Post(const std::string &message);
     std::string GetAddr();
+    unsigned short  GetPort();
     void CloseSession();
 
 private:
@@ -42,6 +47,6 @@ private:
     void ReadHeader();
     void ReadBody(unsigned long long int size, std::shared_ptr<std::unordered_map<std::string, std::string>> &headers);
 };
-}
-
+} //namespace net
+} //namespace ProtosCloudServer
 #endif //ASIOSERVER_SESSION_HPP

@@ -32,12 +32,6 @@ set(PROJECT_SOURCES
     main.cpp
    )
 
-set(LIB_LIST
-        ${OPENSSL_LIBRARIES}
-        ${Boost_LIBRARIES}
-        ws2_32
-        wsock32
-    )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LIB_LIST
@@ -45,11 +39,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             ${Boost_LIBRARIES}
             ws2_32
             wsock32
+            fmt
             )
 else()
     set(LIB_LIST
             ${OPENSSL_LIBRARIES}
             ${Boost_LIBRARIES}
+            fmt
             )
 endif()
 

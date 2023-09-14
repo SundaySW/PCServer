@@ -1,3 +1,4 @@
+#include "iostream"
 
 #include "ProtosCloudServer/logging/null_logger.hpp"
 #include "ProtosCloudServer/logging/impl/base_logger.hpp"
@@ -15,7 +16,9 @@ public:
     }
 
     void SetLevel(Level) override {}  // do nothing
-    void Log(Level, std::string_view) override {}
+    void Log(Level level, std::string_view stringView) override {
+        std::cout << stringView;
+    }
 
     void Flush() override {}
 };

@@ -10,6 +10,8 @@
 #include <variant>
 #include <vector>
 #include <queue>
+#include <optional>
+#include "iostream"
 
 #include "moodycamel/concurrentqueue.h"
 
@@ -25,16 +27,15 @@ struct Log {
     std::chrono::system_clock::time_point time{std::chrono::system_clock::now()};
 };
 
-using Task = std::function<void()>;
-using TaskQueue = moodycamel::ConcurrentQueue<Task>;
+using MsgQueue = moodycamel::ConcurrentQueue<Log>;
 
 class SimpleLogger final: public BaseLogger{
     SimpleLogger(LogType logType, std::string logger_name);
     ~SimpleLogger() override;
     void Log(Level level, std::string_view msg) override;
     void Flush() override;
-    bool ShouldLog(Level level) const noexcept override;
-    std::string_view GetLoggerName() const noexcept;
+    [[nodiscard]] bool ShouldLog(Level level) const noexcept override;
+    [[nodiscard]] std::string_view GetLoggerName() const noexcept;
 private:
     const std::string logger_name_;
     LogType log_type_;
@@ -42,9 +43,12 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     std::atomic_bool m_stopped;
-    TaskQueue task_queue_;
+    std::optional<std::ostream*> ostr_;
+    MsgQueue msg_queue_;
 
     void Push(impl::Log&& log);
+    void SyncWrite(impl::Log&& log);
+    void AsyncWrite(impl::Log&& log);
 };
 
 } //namespace impl

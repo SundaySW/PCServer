@@ -5,9 +5,13 @@
 #ifndef PROTOSCLOUDSERVER_HTTP_SERVER_HPP
 #define PROTOSCLOUDSERVER_HTTP_SERVER_HPP
 
+#include <fmt/format.h>
+
 #include "ProtosCloudServer/net/asio_server.hpp"
 
 namespace ProtosCloudServer {
+
+namespace net{
 
 namespace {
     using handleFunc = std::function<void (std::shared_ptr<HttpSession>)>;
@@ -43,33 +47,46 @@ private:
     }
 
     void HandleNewConnection_(const std::shared_ptr<HttpSession>& client) {
+        LOG(logging::Level::kInfo) << "New session: " << client->GetAddr() <<":"<< client->GetPort();
         if(black_list_.contains(client->GetAddr())){
-            client->CloseSession();
+            LOG(logging::Level::kWarning) << "Attempt to connect from black list: " << client->GetAddr() <<":"<< client->GetPort();
             return;
         }
 
-        raw_clients_.insert(client);
+        auto client_addr_as_key = fmt::format("{}:{}", client->GetAddr(), client->GetPort());
+        raw_clients_.try_emplace(client_addr_as_key, client);
         client->Start(
                 [this](auto&& _1, auto&& _2) { return HttpSessionMsgHandle(std::forward<decltype(_1)>(_1),
                                                                            std::forward<decltype(_2)>(_2));},
-                [&, weak = std::weak_ptr(client)](boost::system::error_code error){
-                    if (auto shared = weak.lock(); shared && raw_clients_.erase(shared))
-                        HandleClientMsg("We are one less\n\r");
+                [&, weak = std::weak_ptr(client), client_addr_as_key](boost::system::error_code error){
+                    if (auto shared = weak.lock(); shared){
+                        CloseClientSession(client_addr_as_key);
+                    }
                 });
         client->Post(http_parser_.generateResponse("", "text/plain", 200, "OK", true));
     }
 
+    void CloseClientSession(auto key){
+        RemoveSessionFromStorage(key);
+        HandleClientMsg("We are one less\n\r");
+    }
+
+    void RemoveSessionFromStorage(const std::string& key){
+        raw_clients_.erase(key);
+    }
+
     void HandleClientMsg(const std::string &message) {
         for (auto &client: raw_clients_)
-            client->Post(message);
+            client.second->Post(message);
     }
 
     std::unordered_set<std::string> black_list_;
     std::string path_{};
     HttpParser http_parser_;
     ProtosServerMsgHandler protos_server_msgHandler_;
-    std::unordered_set<std::shared_ptr<HttpSession>> raw_clients_;
+    std::unordered_map<std::string, std::shared_ptr<HttpSession>> raw_clients_;
 };
-}
 
+} //namespace net
+} //namespace ProtosCloudServer
 #endif //PROTOSCLOUDSERVER_HTTP_SERVER_HPP

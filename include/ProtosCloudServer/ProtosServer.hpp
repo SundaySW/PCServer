@@ -20,7 +20,7 @@ class PCS_API ProtosServer {
 public:
     using HttpMsgHandler = std::function<std::string(const std::string&,
                                                      const std::unordered_map<std::string, std::string>&)>;
-    using Server = HttpServer<ServerBaseProtocol, HttpMsgHandler>;
+    using Server = net::HttpServer<ServerBaseProtocol, HttpMsgHandler>;
 
     explicit ProtosServer(ServerBaseProtocol&& ver, std::size_t port)
         :server_(typename ServerBaseProtocol::endpoint(ver, port),
@@ -45,6 +45,6 @@ private:
     Server server_;
 };
 
-}
+} //namespace ProtosCloudServer
 
 #endif //PROTOSCLOUDSERVER_PROTOSSERVER_HPP

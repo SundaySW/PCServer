@@ -10,7 +10,6 @@
 namespace ProtosCloudServer {
 
 namespace logging {
-
 /// Log levels
     enum class Level {
         kDebug = 0,
@@ -21,7 +20,6 @@ namespace logging {
         kNone = 5
     };
     inline constexpr auto kLevelMax = static_cast<int>(Level::kNone);
-
 } //namespace logging
 } //namespace ProtosCloudServer
 

@@ -10,7 +10,8 @@ using tcp = io::ip::tcp;
 using error_code = boost::system::error_code;
 using namespace ProtosCloudServer::logging;
 
-namespace ProtosCloudServer {
+namespace ProtosCloudServer::net {
+
     HttpSession::HttpSession(tcp::socket &&socket):
         socket_(std::move(socket)),
         parser_()
@@ -19,6 +20,12 @@ namespace ProtosCloudServer {
     std::string HttpSession::GetAddr(){
         error_code error;
         return socket_.remote_endpoint(error).address().to_string();
+        if(error){}
+    }
+
+    unsigned short HttpSession::GetPort(){
+        error_code error;
+        return socket_.remote_endpoint(error).port();
         if(error){}
     }
 
@@ -37,19 +44,19 @@ namespace ProtosCloudServer {
             AsyncWrite(msg);
     }
 
-    void HttpSession::AsyncRead() {
-        stream_buf_ptr_.prepare(1024);
-        io::async_read_until(
-            socket_,
-            stream_buf_ptr_,
-            "\r\n",
-            [self = shared_from_this()](auto &&error, auto &&bytes_transferred){
-                self->OnRead(
-                        std::forward<decltype(error)>(error),
-                        std::forward<decltype(bytes_transferred)>(bytes_transferred)
-                );
-            });
-    }
+//    void HttpSession::AsyncRead() {
+//        stream_buf_ptr_.prepare(1024);
+//        io::async_read_until(
+//            socket_,
+//            stream_buf_ptr_,
+//            "\r\n",
+//            [self = shared_from_this()](auto &&error, auto &&bytes_transferred){
+//                self->OnRead(
+//                        std::forward<decltype(error)>(error),
+//                        std::forward<decltype(bytes_transferred)>(bytes_transferred)
+//                );
+//            });
+//    }
 
     void HttpSession::ReadHeader() {
         stream_buf_ptr_.prepare(1024);
@@ -59,8 +66,10 @@ namespace ProtosCloudServer {
             "\r\n\r\n",
             [this, self = shared_from_this()](auto &&error, auto &&bytes_transferred){
                 if(error){
-//                    LOG(Level::kError) << "error in HttpServer::HttpSession#_readHeader: " << error;
+                    if(!socket_.is_open()) return;
+                    LOG(Level::kError) << "Error in HttpSession::ReadHeader - async read failure. Remote disconnected";
                     on_error_(error);
+                    return;
                 }
                 io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
 
@@ -96,8 +105,9 @@ namespace ProtosCloudServer {
                 io::transfer_exactly(size - stream_buf_ptr_.size()),
                 [this, self = shared_from_this(), headers](auto &&error, auto &&bytes_transferred){
                     if(error){
-//                        LOG(Level::kError) << "error in HttpServer::HttpSession#_readBody: " << error;
+                        LOG(Level::kError) << "Error in HttpSession::ReadBody - async read failure" << error;
                         on_error_(error);
+                        return;
                     }
                     io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
                     std::string dataAsString(boost::asio::buffers_begin(bufs),
@@ -106,7 +116,7 @@ namespace ProtosCloudServer {
                     try {
                         on_message_(dataAsString, *headers);
                     } catch (std::exception& e) {
-//                        LOG(Level::kError) << "error in HttpServer::HttpSession#_readBody answer: " << e.what();
+                        LOG(Level::kError) << "Error in HttpSession::ReadBody - passing message to handler " << error;
                         Post(self->parser_.generateResponse("Internal server error", "text/plain",
                                                             500, "Internal server error", false));
                     }
@@ -115,25 +125,29 @@ namespace ProtosCloudServer {
                 });
     }
 
-    void HttpSession::OnRead(error_code error, std::size_t bytes_transferred){
-        if (!error){
-            std::stringstream message;
-            message << socket_.remote_endpoint(error) << ": "
-                    << std::istream(&stream_buf_ptr_).rdbuf();
-            stream_buf_ptr_.consume(bytes_transferred);
-            on_message_(message.str(), {});
-            AsyncRead();
-        }else{
-            socket_.close(error);
-            on_error_(error);
-        }
-    }
+//    void HttpSession::OnRead(error_code error, std::size_t bytes_transferred){
+//        if (!error){
+//            std::stringstream message;
+//            message << socket_.remote_endpoint(error) << ": "
+//                    << std::istream(&stream_buf_ptr_).rdbuf();
+//            stream_buf_ptr_.consume(bytes_transferred);
+//            on_message_(message.str(), {});
+//            AsyncRead();
+//        }else{
+//            socket_.close(error);
+//            on_error_(error);
+//        }
+//    }
 
     void HttpSession::AsyncWrite(std::string msg) {
         io::async_write(
                 socket_,
                 io::buffer(msg),
                 [self = shared_from_this()](auto &&error, auto &&bytes_transferred){
+                    if(error){
+                        LOG(Level::kError) << "Error in HttpSession::AsyncWrite - async write failure" << error;
+                        return;
+                    }
                     self->OnWrite(
                             std::forward<decltype(error)>(error),
                             std::forward<decltype(bytes_transferred)>(bytes_transferred)
@@ -149,18 +163,23 @@ namespace ProtosCloudServer {
                 AsyncWrite(msg);
         }else{
             socket_.close(error);
-//            LOG(Level::kError) << "Error on write to socket" << error;
+            LOG(Level::kError) << "Error on write to socket: " << error;
             on_error_(error);
         }
     }
 
     void HttpSession::CloseSession() {
+        LOG(Level::kInfo) << "Closing session: " << GetAddr() << ":" << GetPort();
         error_code error;
         socket_.close(error);
         if(error){
-//            LOG(Level::kError) << "Error on closing socket" << error;
+            LOG(Level::kError) << "Error on closing socket: " << GetAddr() << ":" << GetPort();
             on_error_(error);
         }
+    }
+
+    HttpSession::~HttpSession() {
+        CloseSession();
     }
 }
 

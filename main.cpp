@@ -14,8 +14,8 @@ int main() {
         exit(0);
     });
     try{
-        printf("Server started\n");
         server.Start();
+        printf("Server started\n");
     }catch (std::exception& e) {
         printf("error: %s\n", e.what());
     }
