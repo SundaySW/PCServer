@@ -1,6 +1,6 @@
 #include <ProtosCloudServer/logging/log_driver.hpp>
 
-    namespace ProtosCloudServer::logging{
+namespace ProtosCloudServer::logging{
 
     void LogDriver::PutMessageEnd(){
         try {

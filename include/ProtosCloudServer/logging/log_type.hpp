@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_LOG_TYPE_HPP
-#define PROTOSCLOUDSERVER_LOG_TYPE_HPP
+#pragma once
 
 namespace ProtosCloudServer{
 
@@ -12,5 +11,3 @@ namespace logging{
 
 } //namespace logging
 } //namespace ProtosCloudServer
-
-#endif //PROTOSCLOUDSERVER_LOG_TYPE_HPP

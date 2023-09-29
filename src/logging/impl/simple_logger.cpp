@@ -15,7 +15,7 @@ namespace ProtosCloudServer::logging::impl {
     {
     }
 
-    void SimpleLogger::Log(Level level, std::string_view msg) {
+    void SimpleLogger::Log(Level level, std::string_view msg){
         impl::Log log{level, std::string{msg}};
         Push(std::move(log));
     }

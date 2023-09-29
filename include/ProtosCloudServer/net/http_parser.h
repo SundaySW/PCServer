@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_HTTP_PARSER_H
-#define PROTOSCLOUDSERVER_HTTP_PARSER_H
+#pragma once
 
 #include "url.h"
 #include "httpReqArg.h"
@@ -24,5 +23,3 @@ public:
 };
 
 }
-
-#endif //PROTOSCLOUDSERVER_HTTP_PARSER_H

@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_LOG_HPP
-#define PROTOSCLOUDSERVER_LOG_HPP
+#pragma once
 
 #include <ProtosCloudServer/logging/level.hpp>
 #include "ProtosCloudServer/logging/fwd.hpp"
@@ -46,4 +45,3 @@ void LogFlush();
 #define LOG_CRITICAL() LOG(Level::kCritical)
 
 }// namespace ProtosCloudServer::logging
-#endif //PROTOSCLOUDSERVER_LOG_HPP

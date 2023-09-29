@@ -1,7 +1,7 @@
-#ifndef PROTOSCLOUDSERVER_HTTP_SESSION_HPP
-#define PROTOSCLOUDSERVER_HTTP_SESSION_HPP
+#pragma once
 
 #include <queue>
+
 #include "moodycamel/concurrentqueue.h"
 
 #include "boost/asio.hpp"
@@ -18,14 +18,14 @@ namespace net{
  *
  * @ingroup net
  */
-class PCS_API HttpSession : public std::enable_shared_from_this<HttpSession> {
+class PCS_API BoostAsioHttpSession : public std::enable_shared_from_this<BoostAsioHttpSession> {
 public:
     using StringQueue = moodycamel::ConcurrentQueue<std::string>;
     using message_handler = std::function<void(const std::string&, const std::unordered_map<std::string, std::string>&)>;
     using error_handler = std::function<void(boost::system::error_code error)>;
 
-    explicit HttpSession(boost::asio::ip::tcp::socket &&socket);
-    ~HttpSession();
+    explicit BoostAsioHttpSession(boost::asio::ip::tcp::socket &&socket);
+    ~BoostAsioHttpSession();
     void Start(message_handler &&on_message, error_handler &&on_error);
     void Post(const std::string &message);
     std::string GetAddr();
@@ -40,13 +40,10 @@ private:
     message_handler on_message_;
     error_handler on_error_;
 
-    void AsyncRead();
     void AsyncWrite(std::string msg);
-    void OnRead(boost::system::error_code error, std::size_t bytes_transferred);
     void OnWrite(boost::system::error_code error, std::size_t bytes_transferred);
     void ReadHeader();
     void ReadBody(unsigned long long int size, std::shared_ptr<std::unordered_map<std::string, std::string>> &headers);
 };
 } //namespace net
 } //namespace ProtosCloudServer
-#endif //ASIOSERVER_SESSION_HPP

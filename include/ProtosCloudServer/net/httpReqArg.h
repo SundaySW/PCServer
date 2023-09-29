@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_HTTPPARAMETER_H
-#define PROTOSCLOUDSERVER_HTTPPARAMETER_H
+#pragma once
 
 #include "export.h"
 #include <boost/lexical_cast.hpp>
@@ -55,5 +54,3 @@ public:
 };
 
 }
-
-#endif //PROTOSCLOUDSERVER_HTTPPARAMETER_H

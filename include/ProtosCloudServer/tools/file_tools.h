@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_FILE_TOOLS_H
-#define PROTOSCLOUDSERVER_FILE_TOOLS_H
+#pragma once
 
 #include "export.h"
 
@@ -28,5 +27,3 @@ PCS_API
 void write(const std::string& content, const std::string& filePath);
 
 }
-
-#endif //PROTOSCLOUDSERVER_FILE_TOOLS_H

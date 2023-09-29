@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_META_HPP
-#define PROTOSCLOUDSERVER_META_HPP
+#pragma once
 
 #include <type_traits>
 #include <optional>
@@ -35,6 +34,3 @@ namespace meta{
 } //namespace meta
 } //namespace logging
 } //namespace ProtosCloudServer
-
-
-#endif //PROTOSCLOUDSERVER_META_HPP

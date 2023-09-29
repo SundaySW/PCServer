@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_LEVEL_HPP
-#define PROTOSCLOUDSERVER_LEVEL_HPP
+#pragma once
 
 /// @file ProtosCloudServer/logging/Level.hpp
 /// @brief Log levels
@@ -22,5 +21,3 @@ namespace logging {
     inline constexpr auto kLevelMax = static_cast<int>(Level::kNone);
 } //namespace logging
 } //namespace ProtosCloudServer
-
-#endif //PROTOSCLOUDSERVER_LEVEL_HPP

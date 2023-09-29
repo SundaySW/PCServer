@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_NULL_LOGGER_HPP
-#define PROTOSCLOUDSERVER_NULL_LOGGER_HPP
+#pragma once
 
 #include "ProtosCloudServer/logging/fwd.hpp"
 
@@ -17,5 +16,3 @@ LoggerPtr MakeNullLogger();
 
 }// namespace logging
 }// namespace ProtosCloudServer
-
-#endif //PROTOSCLOUDSERVER_NULL_LOGGER_HPP

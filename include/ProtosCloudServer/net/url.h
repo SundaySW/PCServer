@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_URL_H
-#define PROTOSCLOUDSERVER_URL_H
+#pragma once
 
 #include "export.h"
 #include <string>
@@ -43,5 +42,3 @@ public:
 };
 
 }
-
-#endif //PROTOSCLOUDSERVER_URL_H

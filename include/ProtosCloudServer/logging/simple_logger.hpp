@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_SIMPLE_LOGGER_HPP
-#define PROTOSCLOUDSERVER_SIMPLE_LOGGER_HPP
+#pragma once
 
 #include <atomic>
 #include <future>
@@ -54,5 +53,3 @@ private:
 } //namespace impl
 } //namespace logging
 } //namespace ProtosCloudServer
-
-#endif //PROTOSCLOUDSERVER_SIMPLE_LOGGER_HPP

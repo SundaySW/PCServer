@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_FWD_HPP
-#define PROTOSCLOUDSERVER_FWD_HPP
+#pragma once
 
 /// @file ProtosCloudServer/logging/fwd.hpp
 /// @brief Forward declarations for `logging` types
@@ -23,4 +22,3 @@ void SetDefaultLogger(const LoggerPtr &new_logger) noexcept;
 }// namespace impl
 }// namespace logging
 }// namespace ProtosCloudServer
-#endif //PROTOSCLOUDSERVER_FWD_HPP

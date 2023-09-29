@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_STRING_TOOLS_H
-#define PROTOSCLOUDSERVER_STRING_TOOLS_H
+#pragma once
 
 #include "export.h"
 
@@ -85,5 +84,3 @@ inline std::vector<std::string> split(const std::string& str, char delimiter) {
 }
 
 }
-
-#endif //PROTOSCLOUDSERVER_STRING_TOOLS_H

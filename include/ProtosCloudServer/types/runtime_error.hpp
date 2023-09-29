@@ -1,9 +1,4 @@
-//
-// Created by user on 01.08.2023.
-//
-
-#ifndef PROTOSCLOUDSERVER_RUNTIME_ERROR_HPP
-#define PROTOSCLOUDSERVER_RUNTIME_ERROR_HPP
+#pragma once
 
 #include <memory>
 
@@ -13,7 +8,7 @@ namespace ProtosCloudServer{
  *
  * @ingroup types
  */
-class PCS_API RuntimeError {
+class RuntimeError {
 public:
     using Ptr = std::shared_ptr<RuntimeError>;
     /**
@@ -38,6 +33,4 @@ public:
     std::string message;
 };
 
-}
-
-#endif //PROTOSCLOUDSERVER_RUNTIME_ERROR_HPP
+} //namespace ProtosCloudServer

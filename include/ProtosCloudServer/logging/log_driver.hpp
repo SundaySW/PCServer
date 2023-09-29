@@ -1,5 +1,4 @@
-#ifndef PROTOSCLOUDSERVER_LOG_DRIVER_HPP
-#define PROTOSCLOUDSERVER_LOG_DRIVER_HPP
+#pragma once
 
 #include <fmt/format.h>
 #include "fmt/compile.h"
@@ -14,11 +13,14 @@
 
 namespace ProtosCloudServer::logging{
 
-    namespace impl {
+namespace impl {
+
     struct HexBase {
         std::uint64_t value;
-        template <typename Unsigned, typename = std::enable_if_t<std::is_unsigned_v<Unsigned>>>
-        explicit constexpr HexBase(Unsigned value) noexcept : value(value)
+        template <typename Unsigned>
+        explicit constexpr HexBase(Unsigned value) noexcept
+        requires(std::is_unsigned_v<Unsigned>)
+            : value(value)
         {
             static_assert(sizeof(Unsigned) <= sizeof(value));
         }
@@ -131,5 +133,3 @@ namespace ProtosCloudServer::logging{
         void LogMessage() const;
     };
 }// namespace ProtosCloudServer::logging
-
-#endif //PROTOSCLOUDSERVER_LOG_DRIVER_HPP

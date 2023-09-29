@@ -1,6 +1,6 @@
+#pragma once
 
-#ifndef PROTOSCLOUDSERVER_SERVER_BASE_HPP
-#define PROTOSCLOUDSERVER_SERVER_BASE_HPP
+#include "ProtosCloudServer/net/server_config.hpp"
 
 namespace ProtosCloudServer::net::impl {
 /// Base server class
@@ -10,13 +10,10 @@ namespace ProtosCloudServer::net::impl {
         BaseServer(BaseServer&&) = delete;
         BaseServer& operator=(const BaseServer&) = delete;
         BaseServer& operator=(BaseServer&&) = delete;
-        virtual ~BaseServer();
+        virtual ~BaseServer() = default;
         virtual void Start() = 0;
         virtual void Stop() = 0;
     protected:
         virtual void AsyncAccept() = 0;
     };
-
 } //namespace ProtosCloudServer::logging::impl
-
-#endif //PROTOSCLOUDSERVER_SERVER_BASE_HPP

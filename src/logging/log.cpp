@@ -10,7 +10,7 @@ namespace logging {
 namespace {
 
 auto& DefaultLoggerInternalRef() noexcept{
-    static std::atomic<impl::BaseLogger *> default_logger_ptr{&GetNullLogger()};
+    static std::atomic<impl::BaseLogger*> default_logger_ptr{&GetNullLogger()};
     return default_logger_ptr;
 }
 
