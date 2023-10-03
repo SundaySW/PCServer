@@ -1,5 +1,6 @@
-#include "ProtosCloudServer/net/http_parser.h"
+#include "ProtosCloudServer/net/http/http_parser.h"
 #include "ProtosCloudServer/tools/string_tools.h"
+#include "ProtosCloudServer/net/http/http_request.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -11,7 +12,7 @@
 using namespace std;
 using namespace boost;
 
-namespace ProtosCloudServer {
+namespace ProtosCloudServer::http {
 
 string HttpParser::generateRequest(const Url& url, const vector<HttpReqArg>& args, bool isKeepAlive) const {
     string result;
@@ -110,7 +111,8 @@ string HttpParser::generateWwwFormUrlencoded(const vector<HttpReqArg>& args) con
     return result;
 }
 
-string HttpParser::generateResponse(const string& data, const string& mimeType, unsigned short statusCode, const string& statusStr, bool isKeepAlive) const {
+string HttpParser::generateResponse(const string& data, const string& mimeType, unsigned short statusCode,
+                                    const string& statusStr, bool isKeepAlive) const {
     string result;
     result += "HTTP/1.1 ";
     result += std::to_string(statusCode);
@@ -131,8 +133,9 @@ string HttpParser::generateResponse(const string& data, const string& mimeType, 
     return result;
 }
 
-unordered_map<string, string> HttpParser::parseHeader(const string& data, bool isRequest) const {
-    unordered_map<string, string> headers;
+template<typename HeadersMap>
+HeadersMap HttpParser::parseHeader(const string& data, bool isRequest) const{
+    HeadersMap headers;
 
     std::size_t lineStart = 0;
     std::size_t lineEnd = 0;
@@ -160,10 +163,10 @@ unordered_map<string, string> HttpParser::parseHeader(const string& data, bool i
             if (lastLineEnd == lineEnd || lineEnd == string::npos) {
                 break;
             }
-            headers[data.substr(lineStart, lineSepPos - lineStart)] = trim_copy(data.substr(lineSepPos + 1, lineEnd - lineSepPos - 1));
+            headers[data.substr(lineStart, lineSepPos - lineStart)] = trim_copy(data.substr(lineSepPos + 1,
+                                                                                            lineEnd - lineSepPos - 1));
         }
     }
-
     return headers;
 }
 
@@ -176,4 +179,6 @@ string HttpParser::extractBody(const string& data) const {
     return data.substr(headerEnd);
 }
 
+template HttpRequest::HeadersMapT HttpParser::parseHeader<HttpRequest::HeadersMapT>
+        (const std::string& data, bool isRequest) const;
 }

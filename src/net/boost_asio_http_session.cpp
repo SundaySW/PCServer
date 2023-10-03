@@ -9,12 +9,12 @@ namespace io = boost::asio;
 using tcp = io::ip::tcp;
 using error_code = boost::system::error_code;
 using namespace ProtosCloudServer::logging;
+using namespace ProtosCloudServer::http;
 
 namespace ProtosCloudServer::net {
 
     BoostAsioHttpSession::BoostAsioHttpSession(tcp::socket &&socket):
-        socket_(std::move(socket)),
-        parser_()
+        socket_(std::move(socket))
     {}
 
     std::string BoostAsioHttpSession::GetAddr(){
@@ -29,11 +29,8 @@ namespace ProtosCloudServer::net {
         if(error){}
     }
 
-    void BoostAsioHttpSession::Start(BoostAsioHttpSession::message_handler &&on_message,
-                                     BoostAsioHttpSession::error_handler &&on_error)
-    {
-        this->on_message_ = std::move(on_message);
-        this->on_error_ = std::move(on_error);
+    void BoostAsioHttpSession::Start(std::shared_ptr<HttpClientHandlerBase> clientHandler) {
+        clientHandler_ = std::move(clientHandler);
         ReadHeader();
     }
 
@@ -71,7 +68,6 @@ namespace ProtosCloudServer::net {
                     auto msg = "Error in BoostAsioHttpSession::ReadHeader - async read failure. Remote disconnected";
                     LOG_ERROR() << msg;
                     std::cerr << msg << "\n";
-                    on_error_(error);
                     return;
                 }
                 io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
@@ -79,37 +75,29 @@ namespace ProtosCloudServer::net {
                 std::string dataAsString(boost::asio::buffers_begin(bufs),
                                          boost::asio::buffers_begin(bufs) + bytes_transferred);
 
-                auto headers(std::make_shared<std::unordered_map<std::string,
-                             std::string>>(self->parser_.parseHeader(dataAsString, true)));
-
-                auto contentLengthIter = headers->find("Content-Length");
-                unsigned long long size = contentLengthIter != headers->end() ?
-                        std::stoull(contentLengthIter->second) : 0;
-
-                if(size == 0){
-                    auto answer = self->parser_.generateResponse("Bad request", "text/plain", 400,
-                                                                 "Bad request", false);
-                    Post(answer);
+                auto request = std::make_shared<HttpRequest>(dataAsString);
+                auto size = request->GetSize();
+                if(request->IsEmptyRequest()){
+                    HttpResponse response(http::HttpStatus::kBadRequest);
+                    Post(response.toString());
                     stream_buf_ptr_.consume(bytes_transferred);
                     ReadHeader();
                     return;
                 }
                 stream_buf_ptr_.consume(bytes_transferred);
-                self->ReadBody(size, headers);
+                self->ReadBody(size, request);
             });
     }
 
-    void BoostAsioHttpSession::ReadBody(unsigned long long size,
-                                        std::shared_ptr<std::unordered_map<std::string, std::string>>& headers) {
+    void BoostAsioHttpSession::ReadBody(unsigned long long size, std::shared_ptr<HttpRequest>& request) {
         stream_buf_ptr_.prepare(size);
         boost::asio::async_read(
                 socket_,
                 stream_buf_ptr_,
                 io::transfer_exactly(size - stream_buf_ptr_.size()),
-                [this, self = shared_from_this(), headers](auto &&error, auto &&bytes_transferred){
+                [this, self = shared_from_this(), request](auto &&error, auto &&bytes_transferred){
                     if(error){
                         LOG_ERROR() << "Error in BoostAsioHttpSession::ReadBody - async read failure" << error;
-                        on_error_(error);
                         return;
                     }
                     io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
@@ -117,11 +105,12 @@ namespace ProtosCloudServer::net {
                                              boost::asio::buffers_begin(bufs) + bytes_transferred);
 
                     try {
-                        on_message_(dataAsString, *headers);
+                        auto handlerRef = *clientHandler_;
+                        handlerRef(request);
                     } catch (std::exception& e) {
                         LOG_ERROR() << "Error in BoostAsioHttpSession::ReadBody - passing message to handler " << error;
-                        Post(self->parser_.generateResponse("Internal server error", "text/plain",
-                                                            500, "Internal server error", false));
+                        HttpResponse response(http::HttpStatus::kInternalServerError);
+                        Post(response.toString());
                     }
                     stream_buf_ptr_.consume(bytes_transferred);
                     ReadHeader();
@@ -167,7 +156,6 @@ namespace ProtosCloudServer::net {
         }else{
             socket_.close(error);
             LOG_ERROR() << "Error on write to socket: " << error;
-            on_error_(error);
         }
     }
 
@@ -177,7 +165,6 @@ namespace ProtosCloudServer::net {
         socket_.close(error);
         if(error){
             LOG_ERROR() << "Error on closing socket: " << GetAddr() << ":" << GetPort();
-            on_error_(error);
         }
     }
 

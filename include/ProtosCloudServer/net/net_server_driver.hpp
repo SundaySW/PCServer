@@ -8,15 +8,15 @@
 namespace ProtosCloudServer::net{
 
 class NetServer final {
-public:
-    explicit NetServer(const ServerConfig& config)
-        :pimpl(std::make_unique<ServerImpl>(std::move(config)))
-    {};
-
-    void AddMsgHandler();
-
-private:
-    std::unique_ptr<ServerImpl> pimpl;
+//public:
+//    explicit NetServer(const ServerConfig& config)
+//        :pimpl(std::make_unique<ServerImpl>(std::move(config)))
+//    {};
+//
+//    void AddMsgHandler();
+//
+//private:
+//    std::unique_ptr<ServerImpl> pimpl;
 };
 
 } //namespace ProtosCloudServer::net

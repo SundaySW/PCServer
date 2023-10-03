@@ -110,7 +110,7 @@ private:
         raw_clients_.erase(key);
     }
 
-    void HandleClientMsg(const std::string &message) {
+    void HandleClientMsg(const std::string &message){
         for (auto &client: raw_clients_)
             client.second->Post(message);
     }

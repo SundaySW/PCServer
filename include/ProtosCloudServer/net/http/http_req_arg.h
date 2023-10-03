@@ -9,12 +9,13 @@
 
 namespace ProtosCloudServer {
 
+namespace http{
 /**
  * @brief This class represents argument in POST http requests.
  *
  * @ingroup net
  */
-class PCS_API HttpReqArg {
+class HttpReqArg {
 
 public:
     template<typename T>
@@ -52,5 +53,5 @@ public:
      */
     std::string fileName;
 };
-
+}
 }

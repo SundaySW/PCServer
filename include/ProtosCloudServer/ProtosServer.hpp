@@ -15,26 +15,14 @@ namespace ProtosCloudServer{
  */
 
 class PCS_API ProtosServer {
-public:
-    explicit ProtosServer(net::NetServer&& netServer)
-        :server_(netServer)
-    {
-    }
-
-    std::string ClientMsgHandler(const std::string& dataString,
-                                        const std::unordered_map<std::string, std::string>& headers){
-        return {};
-    }
-
-    void Start(){
-        server_.StartServer();
-    }
-
-    void Stop(){
-        server_.StopServer();
-    }
-private:
-    NetServer server_;
+//public:
+//    explicit ProtosServer(net::NetServer&& netServer)
+//        :server_(netServer)
+//    {
+//    }
+//
+//private:
+//    NetServer server_;
 };
 
 } //namespace ProtosCloudServer
