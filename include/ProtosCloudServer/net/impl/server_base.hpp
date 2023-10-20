@@ -11,6 +11,7 @@ namespace ProtosCloudServer::net::impl {
         BaseServer& operator=(const BaseServer&) = delete;
         BaseServer& operator=(BaseServer&&) = delete;
         virtual ~BaseServer() = default;
+        explicit BaseServer() noexcept = default;
         virtual void Start() = 0;
         virtual void Stop() = 0;
     protected:

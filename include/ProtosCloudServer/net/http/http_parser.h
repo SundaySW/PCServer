@@ -2,6 +2,8 @@
 
 #include "url.h"
 #include "ProtosCloudServer/net/http/http_req_arg.h"
+#include "ProtosCloudServer/net/http/header_map.hpp"
+
 
 #include <string>
 #include <unordered_map>
@@ -18,8 +20,7 @@ public:
     std::string generateWwwFormUrlencoded(const std::vector<HttpReqArg>& args) const;
     std::string generateResponse(const std::string& data, const std::string& mimeType, unsigned short statusCode,
                                  const std::string& statusStr, bool isKeepAlive) const;
-    template<typename HeadersMap>
-    HeadersMap parseHeader(const std::string& data, bool isRequest) const;
+    HeaderMapT parseHeader(const std::string& data, bool isRequest) const;
     std::string extractBody(const std::string& data) const;
 };
 

@@ -14,7 +14,7 @@ using namespace boost;
 
 namespace ProtosCloudServer::http {
 
-string HttpParser::generateRequest(const Url& url, const vector<HttpReqArg>& args, bool isKeepAlive) const {
+string HttpParser::generateRequest(const Url &url, const vector <HttpReqArg> &args, bool isKeepAlive) const {
     string result;
     if (args.empty()) {
         result += "GET ";
@@ -57,9 +57,9 @@ string HttpParser::generateRequest(const Url& url, const vector<HttpReqArg>& arg
     return result;
 }
 
-string HttpParser::generateMultipartFormData(const vector<HttpReqArg>& args, const string& boundary) const {
+string HttpParser::generateMultipartFormData(const vector <HttpReqArg> &args, const string &boundary) const {
     string result;
-    for (const HttpReqArg& item : args) {
+    for (const HttpReqArg &item: args) {
         result += "--";
         result += boundary;
         result += "\r\nContent-Disposition: form-data; name=\"";
@@ -81,9 +81,9 @@ string HttpParser::generateMultipartFormData(const vector<HttpReqArg>& args, con
     return result;
 }
 
-string HttpParser::generateMultipartBoundary(const vector<HttpReqArg>& args) const {
+string HttpParser::generateMultipartBoundary(const vector <HttpReqArg> &args) const {
     string result;
-    for (const HttpReqArg& item : args) {
+    for (const HttpReqArg &item: args) {
         if (item.isFile) {
             while (result.empty() || item.value.find(result) != string::npos) {
                 result += stringTools::generateRandomString(4);
@@ -93,11 +93,11 @@ string HttpParser::generateMultipartBoundary(const vector<HttpReqArg>& args) con
     return result;
 }
 
-string HttpParser::generateWwwFormUrlencoded(const vector<HttpReqArg>& args) const {
+string HttpParser::generateWwwFormUrlencoded(const vector <HttpReqArg> &args) const {
     string result;
 
     bool firstRun = true;
-    for (const HttpReqArg& item : args) {
+    for (const HttpReqArg &item: args) {
         if (firstRun) {
             firstRun = false;
         } else {
@@ -111,8 +111,8 @@ string HttpParser::generateWwwFormUrlencoded(const vector<HttpReqArg>& args) con
     return result;
 }
 
-string HttpParser::generateResponse(const string& data, const string& mimeType, unsigned short statusCode,
-                                    const string& statusStr, bool isKeepAlive) const {
+string HttpParser::generateResponse(const string &data, const string &mimeType, unsigned short statusCode,
+                                    const string &statusStr, bool isKeepAlive) const {
     string result;
     result += "HTTP/1.1 ";
     result += std::to_string(statusCode);
@@ -133,9 +133,8 @@ string HttpParser::generateResponse(const string& data, const string& mimeType, 
     return result;
 }
 
-template<typename HeadersMap>
-HeadersMap HttpParser::parseHeader(const string& data, bool isRequest) const{
-    HeadersMap headers;
+HeaderMapT HttpParser::parseHeader(const string &data, bool isRequest) const {
+    HeaderMapT headers;
 
     std::size_t lineStart = 0;
     std::size_t lineEnd = 0;
@@ -164,13 +163,14 @@ HeadersMap HttpParser::parseHeader(const string& data, bool isRequest) const{
                 break;
             }
             headers[data.substr(lineStart, lineSepPos - lineStart)] = trim_copy(data.substr(lineSepPos + 1,
-                                                                                            lineEnd - lineSepPos - 1));
+                                                                                            lineEnd - lineSepPos -
+                                                                                            1));
         }
     }
     return headers;
 }
 
-string HttpParser::extractBody(const string& data) const {
+string HttpParser::extractBody(const string &data) const {
     std::size_t headerEnd = data.find("\r\n\r\n");
     if (headerEnd == string::npos) {
         return data;
@@ -178,7 +178,4 @@ string HttpParser::extractBody(const string& data) const {
     headerEnd += 4;
     return data.substr(headerEnd);
 }
-
-template HttpRequest::HeadersMapT HttpParser::parseHeader<HttpRequest::HeadersMapT>
-        (const std::string& data, bool isRequest) const;
 }

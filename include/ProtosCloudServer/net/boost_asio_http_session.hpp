@@ -10,7 +10,7 @@
 #include "ProtosCloudServer/net/http_session_handler.hpp"
 #include "ProtosCloudServer/net/http/http_request.hpp"
 #include "ProtosCloudServer/net/http/http_response.hpp"
-#include "ProtosCloudServer/net/http_client_handler_base.hpp"
+#include "ProtosCloudServer/net/http_handler.hpp"
 
 namespace ProtosCloudServer {
 
@@ -29,8 +29,9 @@ public:
 
     explicit BoostAsioHttpSession(boost::asio::ip::tcp::socket &&socket);
     ~BoostAsioHttpSession() override;
-    void Start(std::shared_ptr<HttpClientHandlerBase> clientHandler) override;
-    void Post(const std::string &message) override;
+    void Start(http::HttpHandler::CallBackT) override;
+    void Post(http::HttpResponse& response) override;
+    void Post(std::string& msg) override;
     std::string GetAddr() override;
     unsigned short GetPort() override;
     void CloseSession() override;
@@ -39,12 +40,12 @@ private:
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf stream_buf_ptr_;
     StringQueue outgoingQueue_;
-    std::shared_ptr<HttpClientHandlerBase> clientHandler_;
+    http::HttpHandler::CallBackT handler_callback_;
 
     void AsyncWrite(std::string msg);
     void OnWrite(boost::system::error_code error, std::size_t bytes_transferred);
     void ReadHeader();
-    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest>& request);
+    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest> &&request);
 };
 } //namespace net
 } //namespace ProtosCloudServer
