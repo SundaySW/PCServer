@@ -14,7 +14,7 @@ namespace meta{
     { };
 
     template <typename T, typename U>
-    struct is_pair<std::pair<T, U>> : std::true_type
+    struct is_pair <std::pair<T, U>> : std::true_type
     { };
 
     template <typename T>

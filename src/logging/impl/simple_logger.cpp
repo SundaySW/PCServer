@@ -1,6 +1,19 @@
 #include <utility>
+#include <fmt/chrono.h>
+#include <filesystem>
+#include "ProtosCloudServer/logging/impl/simple_logger.hpp"
 
-#include "ProtosCloudServer/logging/simple_logger.hpp"
+namespace ProtosCloudServer::logging{
+
+    LoggerRef GetSimpleLogger() noexcept{
+        static impl::SimpleLogger simple_logger{LogType::kAsync, "simple_logger"};
+        return simple_logger;
+    }
+    LoggerPtr MakeSimpleLogger(){
+        return { std::shared_ptr<void>{}, &logging::GetSimpleLogger() };
+    }
+
+}
 
 namespace ProtosCloudServer::logging::impl {
 
@@ -9,6 +22,10 @@ namespace ProtosCloudServer::logging::impl {
         ,log_type_(logType)
     {
         SetLevel(logging::Level::kInfo);
+        std::filesystem::create_directories("logs");
+        std::string filePath = fmt::format( "logs/{:%d-%m-%Y_%H.%M.%S}", std::chrono::system_clock::now() );
+
+        fstream_.open(filePath.c_str(), std::fstream::out | std::fstream::app);
     }
 
     SimpleLogger::~SimpleLogger()
@@ -21,19 +38,7 @@ namespace ProtosCloudServer::logging::impl {
     }
 
     void SimpleLogger::Flush() {
-        std::future<void> future;
-        {
-            std::shared_ptr<std::promise<void>> promise = std::make_shared<std::promise<void>>();
-            future = promise->get_future();
-//            this->m_worker.pushTask([promise]() {
-//                promise->set_value();
-//            });
-        }
-        try{
-            future.wait();
-        }
-        catch (std::future_error& e)
-        {}
+        fstream_.flush();
     }
 
     bool SimpleLogger::ShouldLog(Level level) const noexcept {
@@ -53,6 +58,7 @@ namespace ProtosCloudServer::logging::impl {
             switch (log_type_) {
                 case LogType::kSync:
                     SyncWrite(std::move(log_to_post));
+                    break;
                 case LogType::kAsync:
                     AsyncWrite(std::move(log_to_post));
             }
@@ -60,10 +66,30 @@ namespace ProtosCloudServer::logging::impl {
     }
 
     void SimpleLogger::SyncWrite(impl::Log&& log) {
-
+        auto future = std::async( std::launch::deferred,
+                                  [this, &log]()
+                                  {
+                                      fstream_ << fmt::format("{:%d-%m-%Y %H:%M:%S} ", log.time ) << log.payload;
+                                      Flush();
+                                  } );
+        try{
+            future.wait();
+        }
+        catch (std::future_error& e)
+        {}
     }
 
     void SimpleLogger::AsyncWrite(impl::Log&& log) {
-
+        auto future = std::async( std::launch::async,
+                                  [this, &log]()
+                                  {
+                                    fstream_ << fmt::format("{:%d-%m-%Y %H:%M:%S} ", log.time ) << log.payload;
+                                    Flush();
+                                  } );
+        try{
+            future.wait();
+        }
+        catch (std::future_error& e)
+        {}
     }
 }

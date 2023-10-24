@@ -10,17 +10,23 @@
 #include <vector>
 #include <queue>
 #include <optional>
-#include "iostream"
+#include <iostream>
+#include <fstream>
 
 #include "moodycamel/concurrentqueue.h"
 
 #include "ProtosCloudServer/logging/impl/base_logger.hpp"
+#include "ProtosCloudServer/logging/fwd.hpp"
 
 namespace ProtosCloudServer{
 namespace logging{
+
+LoggerRef GetSimpleLogger() noexcept;
+LoggerPtr MakeSimpleLogger();
+
 namespace impl{
 
-struct Log {
+struct Log{
     Level level{};
     std::string payload{};
     std::chrono::system_clock::time_point time{std::chrono::system_clock::now()};
@@ -29,6 +35,7 @@ struct Log {
 using MsgQueue = moodycamel::ConcurrentQueue<Log>;
 
 class SimpleLogger final: public BaseLogger{
+public:
     SimpleLogger(LogType logType, std::string logger_name);
     ~SimpleLogger() override;
     void Log(Level level, std::string_view msg) override;
@@ -42,7 +49,7 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     std::atomic_bool m_stopped;
-    std::optional<std::ostream*> ostr_;
+    std::fstream fstream_;
     MsgQueue msg_queue_;
 
     void Push(impl::Log&& log);

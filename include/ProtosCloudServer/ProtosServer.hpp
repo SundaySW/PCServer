@@ -15,14 +15,7 @@ namespace ProtosCloudServer{
  */
 
 class PCS_API ProtosServer {
-//public:
-//    explicit ProtosServer(net::NetServer&& netServer)
-//        :server_(netServer)
-//    {
-//    }
-//
-//private:
-//    NetServer server_;
+
 };
 
 } //namespace ProtosCloudServer

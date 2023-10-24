@@ -1,7 +1,7 @@
 #include <shared_mutex>
 #include "ProtosCloudServer/net/server.hpp"
 #include "ProtosCloudServer/net/server_config.hpp"
-#include "ProtosCloudServer/net/boost_asio_http_server.hpp"
+#include "ProtosCloudServer/net/boost_socket_acceptor.hpp"
 
 using namespace ProtosCloudServer::net;
 using namespace ProtosCloudServer;
@@ -13,46 +13,44 @@ public:
     using Protocol = boost::asio::ip::tcp;
     explicit ServerImpl(const ServerConfig& config);
     ~ServerImpl() = default;
-    void HandleNewConnection(std::shared_ptr<BoostAsioHttpSession>&& session);
+    void HandleNewConnection(std::unique_ptr<BoostHttpSession> session);
     void StartServer();
     void StopServer();
     void SendAll(http::HttpRequest&);
 private:
-    BoostAsioHttpServer<Protocol> server_;
+    BoostSocketAcceptor<Protocol> acceptor_;
     ServerConfig config_;
     ProtosCloudServer::auth::AuthCheckerBase auth_checker_;
     std::unordered_map<std::string, std::shared_ptr<ProtosCloudServer::net::HttpClientHandler>> raw_clients_;
     mutable std::shared_mutex on_read_mutex_{};
     ProtosCloudServer::http::HttpParser http_parser_;
+    boost::asio::thread_pool pool_;
+
+    void NewConnectionHandler(std::unique_ptr<BoostHttpSession> session);
 };
 
 ServerImpl::ServerImpl(const ServerConfig& config)
-    : server_(CreateEndPoint<Protocol>(config),
-        [this](std::shared_ptr<BoostAsioHttpSession> &&session){HandleNewConnection(std::move(session));}),
+    : acceptor_(CreateEndPoint<Protocol>(config),
+                [this](std::unique_ptr<BoostHttpSession> session){ HandleNewConnection(std::move(session)); }),
       config_(config),
-      http_parser_()
+      http_parser_(),
+      pool_(4)
 {
 }
 
-void ServerImpl::HandleNewConnection(std::shared_ptr<BoostAsioHttpSession> &&session) {
+void ServerImpl::HandleNewConnection(std::unique_ptr<BoostHttpSession> session) {
+    boost::asio::post(pool_, [this, session = std::move(session)] () mutable {
+        NewConnectionHandler(std::move(session));
+    });
+}
+
+void ServerImpl::NewConnectionHandler(std::unique_ptr<BoostHttpSession> session) {
     auto client_addr_as_key = fmt::format("{}:{}", session->GetAddr(), session->GetPort());
-
-//    if(black_list_.contains(session->GetAddr())){
-//        LOG_WARNING() << "Attempt to connect from black list: " << client_addr_as_key;
-//        return;
-//    }
-//
-//    if(!client_connect_handler_(client_addr_as_key)){
-//        LOG_WARNING() << "Attempt to connect from black list: " << client_addr_as_key;
-//        return;
-//    }
-
     auto newClient = std::make_shared<HttpClientHandler>(std::move(session));
     newClient->AddHandler(http::HttpHandler("main", [this](http::HttpRequest& request){SendAll(request);}));
     newClient->Post(http_parser_.generateResponse("", "text/plain", 200, "OK", true));
-    newClient->RemoveHandler("main");
     auto res = raw_clients_.emplace(std::move(client_addr_as_key), std::move(newClient));
-    if (!res.second) {
+    if (!res.second){
         throw std::runtime_error("can't handle new client with addr: " + res.first->first);
     }
 }
@@ -64,11 +62,11 @@ void ServerImpl::SendAll(http::HttpRequest& request){
 }
 
 void ServerImpl::StartServer() {
-    server_.Start();
+    acceptor_.StartAccept();
 }
 
 void ServerImpl::StopServer() {
-    server_.Stop();
+    acceptor_.StopAccept();
 }
 
 Server::~Server() = default;

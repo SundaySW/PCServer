@@ -15,8 +15,7 @@ namespace logging {
         kInfo = 1,
         kWarning = 2,
         kError = 3,
-        kCritical = 4,
-        kNone = 5
+        kNone = 4
     };
     inline constexpr auto kLevelMax = static_cast<int>(Level::kNone);
 } //namespace logging

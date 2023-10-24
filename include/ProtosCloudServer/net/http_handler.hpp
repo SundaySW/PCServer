@@ -6,7 +6,7 @@ namespace ProtosCloudServer::http{
 
 class HttpHandler {
 public:
-    using CallBackT = std::function<void(http::HttpRequest& request)>;
+    using CallBackT = std::function<void(HttpRequest& request)>;
 
     HttpHandler(std::string requester_name, CallBackT handler)
         :requester_name_(std::move(requester_name)),
@@ -15,7 +15,7 @@ public:
     std::string_view GetRequesterName(){
         return requester_name_;
     }
-    void HandleRequest(http::HttpRequest& request){
+    void HandleRequest(HttpRequest& request){
         handler_(request);
     }
 private:

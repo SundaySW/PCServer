@@ -1785,7 +1785,7 @@ private:
 					halfDequeuedBlock = pr_blockIndexEntries[i].block;
 				}
 				
-				// Start at the head block (note the first line in the loop gives us the head from the tail on the first iteration)
+				// StartAccept at the head block (note the first line in the loop gives us the head from the tail on the first iteration)
 				auto block = this->tailBlock;
 				do {
 					block = block->next;
@@ -3378,7 +3378,7 @@ private:
 		// there's a reduced need for fences (memory ordering is already consistent
 		// for any individual thread), except for the current table itself.
 		
-		// Start by looking for the thread ID in the current and all previous hash tables.
+		// StartAccept by looking for the thread ID in the current and all previous hash tables.
 		// If it's not found, it must not be in there yet, since this same thread would
 		// have added it previously to one of the tables that we traversed.
 		

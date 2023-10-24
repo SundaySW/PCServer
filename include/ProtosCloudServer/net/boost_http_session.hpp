@@ -7,7 +7,7 @@
 #include "boost/asio.hpp"
 
 #include "export.h"
-#include "ProtosCloudServer/net/http_session_handler.hpp"
+#include "ProtosCloudServer/net/impl/http_session_handler.hpp"
 #include "ProtosCloudServer/net/http/http_request.hpp"
 #include "ProtosCloudServer/net/http/http_response.hpp"
 #include "ProtosCloudServer/net/http_handler.hpp"
@@ -21,14 +21,14 @@ namespace net{
  *
  * @ingroup net
  */
-class PCS_API BoostAsioHttpSession : public HttpSessionHandler,
-                                     public std::enable_shared_from_this<BoostAsioHttpSession>
+class PCS_API BoostHttpSession : public HttpSessionHandler,
+                                 public std::enable_shared_from_this<BoostHttpSession>
 {
 public:
     using StringQueue = moodycamel::ConcurrentQueue<std::string>;
 
-    explicit BoostAsioHttpSession(boost::asio::ip::tcp::socket &&socket);
-    ~BoostAsioHttpSession() override;
+    explicit BoostHttpSession(boost::asio::ip::tcp::socket&& socket);
+    ~BoostHttpSession() override;
     void Start(http::HttpHandler::CallBackT) override;
     void Post(http::HttpResponse& response) override;
     void Post(std::string& msg) override;
@@ -41,11 +41,12 @@ private:
     boost::asio::streambuf stream_buf_ptr_;
     StringQueue outgoingQueue_;
     http::HttpHandler::CallBackT handler_callback_;
+    boost::asio::thread_pool pool_;
 
     void AsyncWrite(std::string msg);
     void OnWrite(boost::system::error_code error, std::size_t bytes_transferred);
     void ReadHeader();
-    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest> &&request);
+    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest>&& request);
 };
 } //namespace net
 } //namespace ProtosCloudServer

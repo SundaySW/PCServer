@@ -10,15 +10,19 @@ namespace ProtosCloudServer {
 namespace logging {
 
 namespace impl {
+
 class BaseLogger;
-}
+
+} // namespace impl
 
 using LoggerRef = impl::BaseLogger&;
 using LoggerPtr = std::shared_ptr<impl::BaseLogger>;
 
 namespace impl {
+
 void SetDefaultLogger(const LoggerPtr &new_logger) noexcept;
 
-}// namespace impl
-}// namespace logging
-}// namespace ProtosCloudServer
+} // namespace impl
+
+} // namespace logging
+} // namespace ProtosCloudServer

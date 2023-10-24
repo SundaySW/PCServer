@@ -9,7 +9,7 @@ namespace logging {
 
 namespace {
 
-auto& DefaultLoggerInternalRef() noexcept{
+auto& DefaultLoggerRef() noexcept{
     static std::atomic<impl::BaseLogger*> default_logger_ptr{&GetNullLogger()};
     return default_logger_ptr;
 }
@@ -24,14 +24,14 @@ auto DefaultLoggerPtr() noexcept{
 namespace impl {
 
 void SetDefaultLogger(const LoggerPtr& logger) noexcept {
-    DefaultLoggerInternalRef() = logger.get();
+    DefaultLoggerRef() = logger.get();
     DefaultLoggerPtr() = logger;
 }
 
 }// namespace impl
 
 LoggerRef GetDefaultLogger() noexcept {
-    return *DefaultLoggerInternalRef().load();
+    return *DefaultLoggerRef().load();
 }
 
 void SetLoggerLevel(LoggerRef logger, Level level) {
@@ -42,5 +42,5 @@ void LogFlush(){
     GetDefaultLogger().Flush();
 }
 
-}
-}
+} //namespace logging
+} //namespace ProtosCloudServer

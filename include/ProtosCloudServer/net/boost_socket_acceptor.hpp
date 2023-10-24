@@ -6,8 +6,8 @@
 #include <unordered_set>
 #include <utility>
 
-#include "ProtosCloudServer/net/boost_asio_http_session.hpp"
-#include "ProtosCloudServer/net/impl/server_base.hpp"
+#include "ProtosCloudServer/net/boost_http_session.hpp"
+#include "ProtosCloudServer/net/impl/base_socket_acceptor.hpp"
 #include "ProtosCloudServer/net/server_config.hpp"
 #include "ProtosCloudServer/logging/log.hpp"
 
@@ -26,40 +26,40 @@ auto CreateEndPoint(const PServer::ServerConfig& config){
  */
 
 template<typename Protocol>
-class PCS_API BoostAsioHttpServer: public impl::BaseServer{
+class PCS_API BoostSocketAcceptor: public impl::BaseSocketAcceptor{
 public:
     using ClientConnectionHandler =
-            std::function<void(std::shared_ptr<BoostAsioHttpSession>&& session)>;
+            std::function< void (std::unique_ptr<BoostHttpSession> session) >;
 
-    BoostAsioHttpServer(boost::asio::ip::basic_endpoint<Protocol> endpoint,
+    BoostSocketAcceptor(boost::asio::ip::basic_endpoint<Protocol> endpoint,
                         ClientConnectionHandler handler)
-        : io_service_(), acceptor_(io_service_, endpoint), socket_(io_service_),
+        : io_service_(), acceptor_(io_service_, endpoint),
         client_connect_handler_(std::move(handler))
     {}
 
-    ~BoostAsioHttpServer()
-    {}
+    ~BoostSocketAcceptor() override = default;
 
     /**
-     * @brief Start receiving new connections.
+     * @brief StartAccept receiving new connections.
      */
-    void Start() override {
+    void StartAccept() override {
         AsyncAccept();
         io_service_.run();
     }
 
     /**
-    * @brief Stop receiving new connections.
+    * @brief StopAccept receiving new connections.
     */
-    void Stop() override {
+    void StopAccept() override {
         io_service_.stop();
     }
 
 protected:
     void AsyncAccept() override {
         socket_.emplace(io_service_);
-        acceptor_.async_accept(*socket_, [&](boost::system::error_code error) {
-            client_connect_handler_(std::make_shared<BoostAsioHttpSession>(std::move(*socket_)));
+        acceptor_.async_accept(*socket_, [this](boost::system::error_code error) {
+            auto session = std::make_unique<BoostHttpSession>(std::move(*socket_));
+            client_connect_handler_(std::move(session));
             AsyncAccept();
         });
     }

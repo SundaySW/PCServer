@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "ProtosCloudServer/net/impl/server_base.hpp"
+#include "ProtosCloudServer/net/impl/base_socket_acceptor.hpp"
 #include "ProtosCloudServer/net/http_client_handler.hpp"
 #include "ProtosCloudServer/auth/auth_checker_base.hpp"
 
@@ -17,7 +17,6 @@ public:
     ~Server();
     void Start();
     void Stop();
-
 private:
     std::unique_ptr<ServerImpl> pimpl;
 };
