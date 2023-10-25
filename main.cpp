@@ -3,11 +3,12 @@
 #include <cstdlib>
 #include <exception>
 #include <string>
-#include "ProtosCloudServer/net/server.hpp"
-#include "ProtosCloudServer/logging/impl/simple_logger.hpp"
 
-using namespace ProtosCloudServer;
-using namespace ProtosCloudServer::logging;
+#include "PCServer/net/server.hpp"
+#include "PCServer/logging/impl/simple_logger.hpp"
+
+using namespace PCServer;
+using namespace PCServer::logging;
 
 int main() {
     PServer::Server server = PServer::Server({});

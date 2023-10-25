@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.22)
-project(ProtosCloudServer)
+project(PCServer)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # options
 option(ENABLE_TESTS "Set to ON to enable building of tests" OFF)
-option(BUILD_SHARED_LIBS "Build ProtosCloudServer shared/static library." OFF)
+option(BUILD_SHARED_LIBS "Build PCServer shared/static library." OFF)
 option(BUILD_DOCUMENTATION "Build doxygen API documentation." OFF)
 
 set(PCS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
@@ -115,5 +115,5 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 if(BUILD_SHARED_LIBS)
-    add_definitions(-DPROTOSCLOUDSERVER_DLL)
+    add_definitions(-DPCSERVER_DLL)
 endif()

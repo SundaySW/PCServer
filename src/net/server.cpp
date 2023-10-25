@@ -1,10 +1,12 @@
-#include <shared_mutex>
-#include "ProtosCloudServer/net/server.hpp"
-#include "ProtosCloudServer/net/server_config.hpp"
-#include "ProtosCloudServer/net/boost_socket_acceptor.hpp"
 
-using namespace ProtosCloudServer::net;
-using namespace ProtosCloudServer;
+#include <shared_mutex>
+
+#include "PCServer/net/server.hpp"
+#include "PCServer/net/server_config.hpp"
+#include "PCServer/net/boost_socket_acceptor.hpp"
+
+using namespace PCServer::net;
+using namespace PCServer;
 
 namespace PServer {
 
@@ -20,10 +22,10 @@ public:
 private:
     BoostSocketAcceptor<Protocol> acceptor_;
     ServerConfig config_;
-    ProtosCloudServer::auth::AuthCheckerBase auth_checker_;
-    std::unordered_map<std::string, std::shared_ptr<ProtosCloudServer::net::HttpClientHandler>> raw_clients_;
+    PCServer::auth::AuthCheckerBase auth_checker_;
+    std::unordered_map<std::string, std::shared_ptr<PCServer::net::HttpClientHandler>> raw_clients_;
     mutable std::shared_mutex on_read_mutex_{};
-    ProtosCloudServer::http::HttpParser http_parser_;
+    PCServer::http::HttpParser http_parser_;
     boost::asio::thread_pool pool_;
 
     void NewConnectionHandler(std::unique_ptr<BoostHttpSession> session);

@@ -1,8 +1,9 @@
-#include "ProtosCloudServer/net/http/http_response.hpp"
 
-namespace ProtosCloudServer::http {
+#include "PCServer/net/http/http_response.hpp"
 
-ProtosCloudServer::http::HttpResponse::HttpResponse(HttpStatus status)
+namespace PCServer::http {
+
+PCServer::http::HttpResponse::HttpResponse(HttpStatus status)
         :status_(status)
 {
 //    generateResponse("Internal server error", "text/plain",
@@ -10,7 +11,7 @@ ProtosCloudServer::http::HttpResponse::HttpResponse(HttpStatus status)
     payload_ = ToString(status);
 }
 
-ProtosCloudServer::http::HttpResponse::HttpResponse(HttpStatus status, std::string_view error)
+PCServer::http::HttpResponse::HttpResponse(HttpStatus status, std::string_view error)
     :status_(status)
 {
 //    generateResponse("Internal server error", "text/plain",
@@ -22,4 +23,4 @@ std::string HttpResponse::toString() {
     return payload_;
 }
 
-} //namespace ProtosCloudServer::http
+} //namespace PCServer::http

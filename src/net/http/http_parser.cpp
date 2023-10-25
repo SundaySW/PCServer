@@ -1,6 +1,7 @@
-#include "ProtosCloudServer/net/http/http_parser.h"
-#include "ProtosCloudServer/tools/string_tools.h"
-#include "ProtosCloudServer/net/http/http_request.hpp"
+
+#include "PCServer/net/http/http_parser.h"
+#include "PCServer/tools/string_tools.h"
+#include "PCServer/net/http/http_request.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -12,7 +13,7 @@
 using namespace std;
 using namespace boost;
 
-namespace ProtosCloudServer::http {
+namespace PCServer::http {
 
 string HttpParser::generateRequest(const Url &url, const vector <HttpReqArg> &args, bool isKeepAlive) const {
     string result;

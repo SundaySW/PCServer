@@ -1,13 +1,14 @@
-#include "ProtosCloudServer/net/boost_http_session.hpp"
-#include "ProtosCloudServer/logging/log.hpp"
+
+#include "PCServer/net/boost_http_session.hpp"
+#include "PCServer/logging/log.hpp"
 
 namespace io = boost::asio;
 using tcp = io::ip::tcp;
 using error_code = boost::system::error_code;
-using namespace ProtosCloudServer::logging;
-using namespace ProtosCloudServer::http;
+using namespace PCServer::logging;
+using namespace PCServer::http;
 
-namespace ProtosCloudServer::net {
+namespace PCServer::net {
 
     BoostHttpSession::BoostHttpSession(tcp::socket&& socket):
         socket_(std::move(socket)),

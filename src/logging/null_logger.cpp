@@ -1,9 +1,10 @@
+
 #include "iostream"
 
-#include "ProtosCloudServer/logging/null_logger.hpp"
-#include "ProtosCloudServer/logging/impl/base_logger.hpp"
+#include "PCServer/logging/null_logger.hpp"
+#include "PCServer/logging/impl/base_logger.hpp"
 
-namespace ProtosCloudServer {
+namespace PCServer {
 
 namespace logging {
 
@@ -35,4 +36,4 @@ LoggerPtr MakeNullLogger() {
 }
 
 }// namespace logging
-}// namespace ProtosCloudServer
+}// namespace PCServer

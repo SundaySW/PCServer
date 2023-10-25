@@ -1,9 +1,7 @@
-//
-// Created by user on 25.08.2023.
-//
-#include "ProtosCloudServer/logging/impl/base_logger.hpp"
 
-namespace ProtosCloudServer::logging::impl{
+#include "PCServer/logging/impl/base_logger.hpp"
+
+namespace PCServer::logging::impl{
 
     void BaseLogger::SetLevel(Level level) {
         level_ = level;

@@ -1,9 +1,11 @@
+
 #include <utility>
 #include <fmt/chrono.h>
 #include <filesystem>
-#include "ProtosCloudServer/logging/impl/simple_logger.hpp"
 
-namespace ProtosCloudServer::logging{
+#include "PCServer/logging/impl/simple_logger.hpp"
+
+namespace PCServer::logging{
 
     LoggerRef GetSimpleLogger() noexcept{
         static impl::SimpleLogger simple_logger{LogType::kAsync, "simple_logger"};
@@ -15,7 +17,7 @@ namespace ProtosCloudServer::logging{
 
 }
 
-namespace ProtosCloudServer::logging::impl {
+namespace PCServer::logging::impl {
 
     SimpleLogger::SimpleLogger(LogType logType, std::string logger_name)
         :logger_name_(std::move(logger_name))

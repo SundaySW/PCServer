@@ -1,9 +1,10 @@
-#include <atomic>
-#include "ProtosCloudServer/logging/log.hpp"
-#include "ProtosCloudServer/logging/impl/base_logger.hpp"
-#include "ProtosCloudServer/logging/null_logger.hpp"
 
-namespace ProtosCloudServer {
+#include <atomic>
+#include "PCServer/logging/log.hpp"
+#include "PCServer/logging/impl/base_logger.hpp"
+#include "PCServer/logging/null_logger.hpp"
+
+namespace PCServer {
 
 namespace logging {
 
@@ -43,4 +44,4 @@ void LogFlush(){
 }
 
 } //namespace logging
-} //namespace ProtosCloudServer
+} //namespace PCServer
