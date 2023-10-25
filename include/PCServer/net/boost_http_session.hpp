@@ -37,16 +37,17 @@ public:
     void CloseSession() override;
 
 private:
+    void AsyncWrite(std::string msg);
+    void OnWrite(boost::system::error_code error, std::size_t bytes_transferred);
+    void ReadHeader();
+    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest>&& request);
+
     boost::asio::ip::tcp::socket socket_;
     boost::asio::streambuf stream_buf_ptr_;
     StringQueue outgoingQueue_;
     http::HttpHandler::CallBackT handler_callback_;
     boost::asio::thread_pool pool_;
-
-    void AsyncWrite(std::string msg);
-    void OnWrite(boost::system::error_code error, std::size_t bytes_transferred);
-    void ReadHeader();
-    void ReadBody(unsigned long long size, std::shared_ptr<http::HttpRequest>&& request);
 };
+
 } //namespace net
 } //namespace PCServer

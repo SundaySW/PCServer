@@ -20,7 +20,7 @@ auto CreateEndPoint(const PServer::ServerConfig& config){
     return typename Protocol::endpoint(boost::asio::ip::address::from_string(config.address.value()), config.port);
 }
 /**
- * @brief This class make core TCP ProtosServer using Boost Asio
+ * @brief This class make engine TCP ProtosServer using Boost Asio
  *
  * @ingroup net
  */
