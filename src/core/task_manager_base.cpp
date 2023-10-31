@@ -5,6 +5,6 @@
 
 PCServer::engine::TaskManagerBase::~TaskManagerBase() = default;
 
-PCServer::engine::TaskManagerBase::TaskManagerBase(TaskManagerConfig&& config)
+PCServer::engine::TaskManagerBase::TaskManagerBase(TaskManagerConfig config)
     : config_(std::move(config))
 {};

@@ -9,6 +9,9 @@
 
 namespace PCServer::engine{
 
+TaskManagerBase& GetBoostTaskManager() noexcept;
+std::shared_ptr<TaskManagerBase> MakeBoostTaskManager();
+
 class BoostTaskManager: public engine::TaskManagerBase {
 public:
     using Task = std::unique_ptr<TaskContext>;
@@ -16,7 +19,7 @@ public:
 
     explicit BoostTaskManager(TaskManagerConfig);
     ~BoostTaskManager() override;
-    void ScheduleTask(TaskContext&) override;
+    void ScheduleTask(TaskContext&&) override;
     void InitiateShutdown() override;
 
 private:

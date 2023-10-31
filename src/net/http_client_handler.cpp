@@ -6,7 +6,7 @@ namespace PCServer::net {
 
 using namespace http;
 
-HttpClientHandler::HttpClientHandler(std::unique_ptr<HttpSessionHandler> session_handler)
+HttpClientHandler::HttpClientHandler(std::shared_ptr<HttpSessionHandler> session_handler)
     :session_handler_(std::move(session_handler))
 {
     session_handler_->Start([this](HttpRequest& request)

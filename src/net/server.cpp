@@ -4,6 +4,9 @@
 #include "PCServer/net/server.hpp"
 #include "PCServer/net/server_config.hpp"
 #include "PCServer/net/boost_socket_acceptor.hpp"
+#include "PCServer/engine/task_management.hpp"
+#include "PCServer/utils/meta.hpp"
+
 
 using namespace PCServer::net;
 using namespace PCServer;
@@ -13,40 +16,38 @@ namespace PServer {
 class ServerImpl {
 public:
     using Protocol = boost::asio::ip::tcp;
+    using SocketAcceptor = BoostSocketAcceptor<Protocol>;
+    using CallBackArgT = function_traits<SocketAcceptor::CallBackT>::arg_type;
+
     explicit ServerImpl(const ServerConfig& config);
     ~ServerImpl() = default;
-    void HandleNewConnection(std::unique_ptr<BoostHttpSession> session);
+    void HandleNewConnection(CallBackArgT);
     void StartServer();
     void StopServer();
     void SendAll(http::HttpRequest&);
 private:
-    BoostSocketAcceptor<Protocol> acceptor_;
+    SocketAcceptor acceptor_;
     ServerConfig config_;
     PCServer::auth::AuthCheckerBase auth_checker_;
     std::unordered_map<std::string, std::shared_ptr<PCServer::net::HttpClientHandler>> raw_clients_;
     mutable std::shared_mutex on_read_mutex_{};
     PCServer::http::HttpParser http_parser_;
-    boost::asio::thread_pool pool_;
 
-    void NewConnectionHandler(std::unique_ptr<BoostHttpSession> session);
+    void NewConnectionHandler(CallBackArgT);
 };
 
 ServerImpl::ServerImpl(const ServerConfig& config)
     : acceptor_(CreateEndPoint<Protocol>(config),
-                [this](std::unique_ptr<BoostHttpSession> session){ HandleNewConnection(std::move(session)); }),
+                [this](CallBackArgT session){ HandleNewConnection(std::move(session)); }),
       config_(config),
-      http_parser_(),
-      pool_(4)
-{
+      http_parser_()
+{}
+
+void ServerImpl::HandleNewConnection(CallBackArgT session) {
+    NewConnectionHandler(std::move(session));
 }
 
-void ServerImpl::HandleNewConnection(std::unique_ptr<BoostHttpSession> session) {
-    boost::asio::post(pool_, [this, session = std::move(session)] () mutable {
-        NewConnectionHandler(std::move(session));
-    });
-}
-
-void ServerImpl::NewConnectionHandler(std::unique_ptr<BoostHttpSession> session) {
+void ServerImpl::NewConnectionHandler(CallBackArgT session) {
     auto client_addr_as_key = fmt::format("{}:{}", session->GetAddr(), session->GetPort());
     auto newClient = std::make_shared<HttpClientHandler>(std::move(session));
     newClient->AddHandler(http::HttpHandler("main", [this](http::HttpRequest& request){SendAll(request);}));

@@ -6,6 +6,15 @@
 
 namespace PCServer {
 
+    template<typename T>
+    struct function_traits;
+
+    template<typename R, typename Arg>
+    struct function_traits<std::function<R(Arg)>> {
+        using result_type = R;
+        using arg_type = Arg;
+    };
+
 namespace logging {
 
 namespace meta{

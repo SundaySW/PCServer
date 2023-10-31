@@ -10,7 +10,7 @@ class HttpClientHandler: public HttpClientHandlerBase {
 public:
     using HandlerMap = std::unordered_map<std::string, http::HttpHandler>;
 
-    explicit HttpClientHandler(std::unique_ptr<HttpSessionHandler> session_handler);
+    explicit HttpClientHandler(std::shared_ptr<HttpSessionHandler> session_handler);
     void AddHandler(http::HttpHandler&& handler) override;
     void AddHandler(http::HttpHandler& handler) override;
     void RemoveHandler(std::string &&requester_name);
@@ -21,7 +21,7 @@ public:
     ~HttpClientHandler() override;
 
 private:
-    std::unique_ptr<HttpSessionHandler> session_handler_;
+    std::shared_ptr<HttpSessionHandler> session_handler_;
     HandlerMap handlerMap_;
     void SessionRequestHandler(http::HttpRequest& request) override;
     void ProcessReqOnHandler(auto);

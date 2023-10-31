@@ -5,6 +5,14 @@
 
 namespace PCServer::engine{
 
+TaskManagerBase& GetBoostTaskManager() noexcept{
+    static BoostTaskManager manager{TaskManagerConfig{}};
+    return manager;
+}
+std::shared_ptr<TaskManagerBase> MakeBoostTaskManager(){
+    return { std::shared_ptr<void>{}, &GetBoostTaskManager() };
+}
+
 using namespace PCServer::logging;
 
 BoostTaskManager::BoostTaskManager(TaskManagerConfig config)
@@ -25,7 +33,7 @@ BoostTaskManager::BoostTaskManager(TaskManagerConfig config)
     }
 }
 
-void BoostTaskManager::ScheduleTask(TaskContext& context) {
+void BoostTaskManager::ScheduleTask(TaskContext&& context) {
     task_queue_.enqueue(std::make_unique<TaskContext>(context));
 }
 
@@ -41,11 +49,11 @@ void BoostTaskManager::ProcessTasks() noexcept {
     while (true) {
         Task task;
         auto hasElem = task_queue_.try_dequeue(task);
-        if(!hasElem)
+        if(!hasElem){
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        task->SetExecuteStartedTimepoint();
-
+            continue;
+        }
+        task->SetScheduledTimePoint();
         bool processed_ok = true;
         try {
             task->Process();
@@ -55,7 +63,7 @@ void BoostTaskManager::ProcessTasks() noexcept {
         }
 
         if(processed_ok) {
-           //todo finish task
+            LOG_INFO() << "Task finished in " << task->GetProcessTime().count() << " microseconds";
         }
     }
 }

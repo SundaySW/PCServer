@@ -46,7 +46,6 @@ private:
     boost::asio::streambuf stream_buf_ptr_;
     StringQueue outgoingQueue_;
     http::HttpHandler::CallBackT handler_callback_;
-    boost::asio::thread_pool pool_;
 };
 
 } //namespace net

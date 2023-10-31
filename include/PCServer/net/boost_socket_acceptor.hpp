@@ -5,11 +5,13 @@
 #include <queue>
 #include <unordered_set>
 #include <utility>
+#include <any>
 
 #include "PCServer/net/boost_http_session.hpp"
 #include "PCServer/net/impl/base_socket_acceptor.hpp"
 #include "PCServer/net/server_config.hpp"
 #include "PCServer/logging/log.hpp"
+#include "PCServer/engine/task_management.hpp"
 
 using namespace PCServer::logging;
 
@@ -28,13 +30,10 @@ auto CreateEndPoint(const PServer::ServerConfig& config){
 template<typename Protocol>
 class PCS_API BoostSocketAcceptor: public impl::BaseSocketAcceptor{
 public:
-    using ClientConnectionHandler =
-            std::function< void (std::unique_ptr<BoostHttpSession> session) >;
+    using CallBackT = std::function<void(std::shared_ptr<BoostHttpSession>)>;
 
-    BoostSocketAcceptor(boost::asio::ip::basic_endpoint<Protocol> endpoint,
-                        ClientConnectionHandler handler)
-        : io_service_(), acceptor_(io_service_, endpoint),
-        client_connect_handler_(std::move(handler))
+    BoostSocketAcceptor(boost::asio::ip::basic_endpoint<Protocol> endpoint, CallBackT callBack)
+        : io_service_(), acceptor_(io_service_, endpoint), client_connect_handler_(std::move(callBack))
     {}
 
     ~BoostSocketAcceptor() override = default;
@@ -58,8 +57,12 @@ protected:
     void AsyncAccept() override {
         socket_.emplace(io_service_);
         acceptor_.async_accept(*socket_, [this](boost::system::error_code error) {
-            auto session = std::make_unique<BoostHttpSession>(std::move(*socket_));
-            client_connect_handler_(std::move(session));
+            auto session = std::make_shared<BoostHttpSession>(std::move(*socket_));
+            engine::PushTask(engine::TaskContext(
+                [this, session]{
+                    client_connect_handler_(std::move(session));
+                }
+            ));
             AsyncAccept();
         });
     }
@@ -68,7 +71,7 @@ private:
     boost::asio::io_service io_service_;
     boost::asio::basic_socket_acceptor<Protocol> acceptor_;
     std::optional<boost::asio::basic_stream_socket<Protocol>> socket_;
-    ClientConnectionHandler client_connect_handler_;
+    CallBackT client_connect_handler_;
 };
 
 } //namespace PCServer::net

@@ -1,6 +1,7 @@
 
 #include "PCServer/net/boost_http_session.hpp"
 #include "PCServer/logging/log.hpp"
+#include "PCServer/engine/task_management.hpp"
 
 namespace io = boost::asio;
 using tcp = io::ip::tcp;
@@ -11,8 +12,7 @@ using namespace PCServer::http;
 namespace PCServer::net {
 
     BoostHttpSession::BoostHttpSession(tcp::socket&& socket):
-        socket_(std::move(socket)),
-        pool_(4)
+        socket_(std::move(socket))
     {}
 
     std::string BoostHttpSession::GetAddr(){
@@ -92,18 +92,21 @@ namespace PCServer::net {
                 }
                 io::streambuf::const_buffers_type bufs = stream_buf_ptr_.data();
 
-                boost::asio::post(pool_, [this, request, bufs, bytes_transferred]{
-                    std::string dataAsString(boost::asio::buffers_begin(bufs),
-                                             boost::asio::buffers_begin(bufs) + bytes_transferred);
-                    request->StoreData(dataAsString);
-                    try{
-                        handler_callback_(*request);
-                    }catch (std::exception& e) {
-                        LOG_ERROR() << "Error in BoostHttpSession::ReadBody - passing message to handler ";
-                        auto response = HttpResponse(http::HttpStatus::kInternalServerError, e.what());
-                        Post(response);
+                engine::PushTask(engine::TaskContext(
+                    [this, request, bufs, bytes_transferred]
+                    {
+                        std::string dataAsString(boost::asio::buffers_begin(bufs),
+                                                 boost::asio::buffers_begin(bufs) + bytes_transferred);
+                        request->StoreData(dataAsString);
+                        try{
+                            handler_callback_(*request);
+                        }catch (std::exception& e) {
+                            LOG_ERROR() << "Error in BoostHttpSession::ReadBody - passing message to handler ";
+                            auto response = HttpResponse(http::HttpStatus::kInternalServerError, e.what());
+                            Post(response);
+                        }
                     }
-                });
+                ));
 
                 stream_buf_ptr_.consume(bytes_transferred);
                 ReadHeader();
@@ -148,7 +151,6 @@ namespace PCServer::net {
     }
 
     BoostHttpSession::~BoostHttpSession(){
-        pool_.join();
         CloseSession();
     }
 }
