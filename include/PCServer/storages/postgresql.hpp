@@ -1,7 +1,8 @@
 
 #pragma once
 
+#include "PCServer/storages/database.hpp"
 
-class PostgresqlDriver {
+class PostgresqlDriver: public DataBase {
 
 };

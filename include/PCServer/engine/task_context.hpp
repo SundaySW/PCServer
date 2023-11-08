@@ -9,6 +9,7 @@ namespace PCServer::engine{
 class TaskContext{
 public:
     using CallT = std::function<void()>;
+
 //    explicit TaskContext(std::unique_ptr<CallT> call);
     explicit TaskContext(CallT&& call);
     TaskContext(TaskContext&);
@@ -22,7 +23,7 @@ private:
     CallT call_;
     std::chrono::steady_clock::time_point task_scheduled_timepoint_;
     std::chrono::steady_clock::time_point execute_started_;
-    std::chrono::steady_clock::time_point taks_finished__timepoint_;
+    std::chrono::steady_clock::time_point task_finished_timepoint_;
 };
 
 } //namespace PCServer::engine

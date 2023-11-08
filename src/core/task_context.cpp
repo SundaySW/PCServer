@@ -35,11 +35,11 @@ void TaskContext::Process() {
 }
 
 void TaskContext::SetFinishedTimePoint() {
-    taks_finished__timepoint_ = std::chrono::steady_clock::now();
+    task_finished_timepoint_ = std::chrono::steady_clock::now();
 }
 
 std::chrono::microseconds TaskContext::GetProcessTime() {
-    return std::chrono::duration_cast<std::chrono::microseconds>(taks_finished__timepoint_ - execute_started_);
+    return std::chrono::duration_cast<std::chrono::microseconds>(task_finished_timepoint_ - execute_started_);
 }
 
 } //namespace PCServer::engine

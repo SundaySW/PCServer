@@ -15,6 +15,18 @@ namespace PCServer {
         using arg_type = Arg;
     };
 
+    template<typename R, typename ...Args>
+    struct function_traits<std::function<R(Args...)>> {
+        static const size_t nargs = sizeof...(Args);
+        using result_type = R;
+
+        template <size_t i>
+        struct arg {
+            using type = typename std::tuple_element<i, std::tuple<Args...>>::type;
+        };
+    };
+//    typename function_traits <T>::template arg<0>::type;
+
 namespace logging {
 
 namespace meta{

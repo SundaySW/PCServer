@@ -21,6 +21,9 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif()
 
+## FetchContent
+include(FetchContent)
+
 include_directories(include)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
         src/*.*
@@ -32,26 +35,8 @@ set(PROJECT_SOURCES
     main.cpp
    )
 
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LIB_LIST
-            ${OPENSSL_LIBRARIES}
-            ${Boost_LIBRARIES}
-            ws2_32
-            wsock32
-            fmt
-            )
-else()
-    set(LIB_LIST
-            ${OPENSSL_LIBRARIES}
-            ${Boost_LIBRARIES}
-            fmt
-            )
-endif()
-
 add_compile_options(
-
-    )
+)
 
 ## openssl
 find_package(OpenSSL REQUIRED)
@@ -78,12 +63,42 @@ ENDIF()
 find_package(fmt REQUIRED)
 ## yaml
 find_package(yaml-cpp REQUIRED)
+## libpqxx
+FetchContent_Declare(
+        libpqxx
+        GIT_REPOSITORY https://github.com/jtv/libpqxx.git
+        GIT_TAG 7.8.1
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpqxx
+)
+if(NOT libpqxx_POPULATED)
+    FetchContent_Populate(libpqxx)
+endif()
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpqxx build-pqxx)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(LIB_LIST
+            ${OPENSSL_LIBRARIES}
+            ${Boost_LIBRARIES}
+            ws2_32
+            wsock32
+            fmt
+            pqxx
+            )
+else()
+    set(LIB_LIST
+            ${OPENSSL_LIBRARIES}
+            ${Boost_LIBRARIES}
+            fmt
+            pqxx
+            )
+endif()
 
 # building project
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
         ${PCS_THIRD_PARTY_DIRS}/moodycamel/include
+        ${PCS_THIRD_PARTY_DIRS}/nlohmann_json/include
         )
 target_link_libraries(${PROJECT_NAME}
         ${LIB_LIST}
